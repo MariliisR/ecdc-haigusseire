@@ -1,3 +1,4 @@
+from sqlalchemy import create_engine, text
 import pandas as pd
 import psycopg2
 from sqlalchemy import create_engine
@@ -19,8 +20,13 @@ def fetch_data():
 
 def load_to_db(df):
     """Laadib andmed PostgreSQL andmebaasi"""
-    db_url = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+    db_url = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:{os.getenv('DB_PORT_HOST')}/{os.getenv('POSTGRES_DB')}"
     engine = create_engine(db_url)
+    
+    # Loo bronze skeem kui pole olemas
+    with engine.connect() as conn:
+        conn.execute(text("CREATE SCHEMA IF NOT EXISTS bronze"))
+        conn.commit()
     
     df.to_sql(
         name="raw_ecdc_sari",
@@ -35,4 +41,4 @@ if __name__ == "__main__":
     df = fetch_data()
     print(df.head())
     print(df.shape)
-    # load_to_db(df)  # Aktiveeritakse kui Docker ja PostgreSQL on seadistatud
+    load_to_db(df)
