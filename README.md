@@ -1,16 +1,16 @@
-# [GRUPI NIMI] — [PROJEKTI PEALKIRI]
+# MAMM — Euroopa hingamisteede viiruste hooajaline seire
 
 > **Juhend:** Asenda kõik nurksulgudes vormid oma sisuga enne esitamist. Kustuta see juhendrida.
 
 ## Äriküsimus
 
-[Kirjelda ühe-kahe lausega, millise andmetega seotud probleemi te lahendate ja kes sellest kasu saab.]
+Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimesel otsustada, kuhu on turvalisem reisida.
 
 **Mõõdikud:**
 
-1. [Esimene KPI või mõõdik — näiteks: päevane müük poe kohta]
-2. [Teine KPI või mõõdik]
-3. [Kolmas KPI või mõõdik — vabatahtlik]
+1. Esimene KPI või mõõdik — Kõrgeim positiivsete testide arv nädalate lõikes riigi ja haiguse kaupa
+2. Teine KPI või mõõdik - Millistel perioodidel on haigusaktiivsus kõrgeim
+3. Kolmas KPI või mõõdik — esialgu ei lisa
 
 ## Arhitektuur
 
@@ -122,7 +122,7 @@ Testide tulemused: [kuhu salvestatakse / kuidas vaadata]
 
 | Nimi | Roll |
 |------|------|
-| [Nimi 1] | [Roll] |
-| [Nimi 2] | [Roll] |
-| [Nimi 3] | [Roll] |
-| [Nimi 4] | [Roll — vabatahtlik] |
+| Mariliis | andmeallika omanik |
+| Madli | transformatsioonide omanik |
+| Mirell | andmekvaliteedi omanik |
+| Annika | näidikulaua omanik |
