@@ -1,23 +1,21 @@
 # Arhitektuur
 
-> **Juhend:** See fail on projektitöö esimese nädala väljund. Asenda kõik nurksulgudes plankid oma projekti tegeliku sisuga. Kustuta see juhendrida.
 
 ## Äriküsimus
 
-[Kirjuta ühe-kahe lausega oma äriküsimus täpselt. Näiteks: "Millistes kauplustes ja mis kellaaegadel on müügitõhusus (käive külastaja kohta) kõrgeim?"]
+Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimesel otsustada, kuhu on turvalisem reisida.
 
 ## Mõõdikud
 
-1. [Esimene mõõdik — kirjelda, mida arvutate ja kuidas]
-2. [Teine mõõdik]
-3. [Kolmas mõõdik — vabatahtlik]
+1. Esimene mõõdik — Positiivsete hingamisteede viiruste testide arv Euroopa riikide lõikes 
+2. Teine mõõdik - Positiivsete testide arv nädalate lõikes - arvutame iga nädala kohta 
+3. Kolmas mõõdik — positiivsete testide arv viirusetüüpide lõikes (Influenza, RSV, SARS-CoV-2)
 
 ## Andmeallikad
 
 | Allikas | Tüüp | Ajas muutuv? | Roll |
 |---------|------|--------------|------|
-| [Nimi] | [API / CSV / DB] | Jah, [iga X tundi / päeva] | [Milleks kasutatakse?] |
-| [Nimi] | [seed / dim-tabel] | Ei, staatiline | [Milleks kasutatakse?] |
+| Respiratory viruses weekly data GitHub repository | CSV | Jah, kord nädalas | [Milleks kasutatakse?] |
 
 ## Andmevoog
 
