@@ -23,13 +23,13 @@
 
 ```mermaid
 flowchart LR
-    source[Andmeallikas] --> ingest[Sissevõtt]
-    ingest --> staging[(staging)]
-    staging --> transform[Transformatsioon]
-    transform --> mart[(mart)]
-    mart --> dashboard[Näidikulaud]
+    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
+    ingest --> staging[(PostgreSQL_staging)]
+    staging --> transform[SQL transformatsioon]
+    transform --> mart[(PostgreSQL mart)]
+    mart --> dashboard[Apache Superset]
     mart --> quality[Andmekvaliteedi testid]
-    scheduler[Scheduler] --> ingest
+    scheduler[Cron scheduler] --> ingest
 ```
 
 > Täpsusta diagrammi vastavalt oma projektile — lisa rohkem andmeallikaid, mudeleid või teenuseid.
