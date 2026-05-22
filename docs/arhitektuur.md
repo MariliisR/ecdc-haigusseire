@@ -15,9 +15,8 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 | Allikas | Tüüp | Ajas muutuv? | Roll |
 |---------|------|--------------|------|
-|GITHUB EU-CDC/Respiratory_viruses_weekly_data | CSV | Jah, kord nädalas | Kasutame siit täpsemalt kahte andmestikku: 
-1) SARITestsDetectionsPositivity.csv - andmestikus on testid, mis on tehtud haiglates. Haiglast tuleb raskemate juhtumite info.
-2) sentinelTestsDetectionsPositivity.csv - testid, mis on tehtud mujal, nt. perearsti juures. Perearsti juurest keskmise ja kergema taseme põdemised. 
+|GITHUB EU-CDC/Respiratory_viruses_weekly_data SARITestsDetectionsPositivity.csv | CSV | Jah, kord nädalas | Andmestikus on testid, mis on tehtud haiglates ja annab meile raskemate juhtumite info. | 
+|GITHUB EU-CDC/Respiratory_viruses_weekly_data sentinelTestsDetectionsPositivity.csv | CSV | Jah, kord nädalas | Andmestikus on testid, mis on tehtud mujal, nt. perearsti juures, siit saame keskmise ja kergema taseme põdemised. |
 
 ## Andmevoog
 
@@ -52,8 +51,8 @@ flowchart LR
 
 | Risk | Mõju | Maandus |
 |------|------|---------|
-| Risk 1 — Andmeallikaid ei uuendata regulaarselt. | Uue nädala tulemus jääb sisse laadimata ja sisu aegub ning näidikulaud jääb tühjaks. | Ehitame protsessi selliselt, et kui andmeid peale ei tule, siis protsess jätkab andmete järele pärimist mõistliku regulaarsusega. Võimalusel kuvab seni hoiatavat silti näidikulaual. |
-| Risk 2 — Andmed muutuvad tagantjärele. | Valime sobiva ajaakna, mille raames andmete sisse laadimise protsess võrdleb vanu tulemusi baasis olevaga ja kui väärtus erineb, kirjutab vana üle, kui ei, siis jätab samaks. |
+| Andmeallikaid ei uuendata regulaarselt. | Uue nädala tulemus jääb sisse laadimata ja sisu aegub ning näidikulaud jääb tühjaks. | Ehitame protsessi selliselt, et kui andmeid peale ei tule, siis protsess jätkab andmete järele pärimist mõistliku regulaarsusega. Võimalusel kuvab seni hoiatavat silti näidikulaual. |
+| Andmed muutuvad tagantjärele. | Valime sobiva ajaakna, mille raames andmete sisse laadimise protsess võrdleb vanu tulemusi baasis olevaga ja kui väärtus erineb, kirjutab vana üle, kui ei, siis jätab samaks. |
 | Risk 3 — [Mis juhtub?] | [Kuidas maandad?] |
 
 ## Privaatsus ja turve
