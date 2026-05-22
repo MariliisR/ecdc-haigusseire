@@ -52,7 +52,7 @@ flowchart LR
 | Risk | Mõju | Maandus |
 |------|------|---------|
 | Andmeallikaid ei uuendata regulaarselt. | Uue nädala tulemus jääb sisse laadimata ja sisu aegub ning näidikulaud jääb tühjaks. | Ehitame protsessi selliselt, et kui andmeid peale ei tule, siis protsess jätkab andmete järele pärimist mõistliku regulaarsusega. Võimalusel kuvab seni hoiatavat silti näidikulaual. |
-| Andmed muutuvad tagantjärele. | Valime sobiva ajaakna, mille raames andmete sisse laadimise protsess võrdleb vanu tulemusi baasis olevaga ja kui väärtus erineb, kirjutab vana üle, kui ei, siis jätab samaks. |
+| Andmed muutuvad tagantjärele. | Välja kuvatavad andmed ei vasta tegelikkusele. | Valime sobiva ajaakna, mille raames andmete sisse laadimise protsess võrdleb vanu tulemusi baasis olevaga ja kui väärtus erineb, kirjutab vana üle, kui ei, siis jätab samaks. |
 | Risk 3 — [Mis juhtub?] | [Kuidas maandad?] |
 
 ## Privaatsus ja turve
