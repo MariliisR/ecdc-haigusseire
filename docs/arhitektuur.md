@@ -3,19 +3,21 @@
 
 ## Äriküsimus
 
-Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimesel otsustada, kuhu on turvalisem reisida.
+Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimesel otsustada, kuhu ja millal on turvalisem reisida.
 
 ## Mõõdikud
 
-1. Esimene mõõdik — Positiivsete hingamisteede viiruste testide arv Euroopa riikide lõikes 
-2. Teine mõõdik - Positiivsete testide arv nädalate lõikes - arvutame iga nädala kohta 
-3. Kolmas mõõdik — positiivsete testide arv viirusetüüpide lõikes (Influenza, RSV, SARS-CoV-2)
+1. Esimene mõõdik — Positiivsete testide arv nädalate lõikes - arvutame iga nädala kohta positiivsete hingamisteede viiruse testide koguarvu Euroopa riikides 
+2. Teine mõõdik - Positiivsete testide määr riikide lõikes - arvutame positiivsete testide osakaalu kõigist tehtud testidest iga riigi kohta nädalapõhiselt
+3. Kolmas mõõdik — Positiivsete testide määr viirusetüüpide lõikes (Influenza, RSV, SARS-CoV-2) - arvutame positiivsete testide arvu viirusetüüpide lõikes igal nädalal igas riigis
 
 ## Andmeallikad
 
 | Allikas | Tüüp | Ajas muutuv? | Roll |
 |---------|------|--------------|------|
-| Respiratory viruses weekly data GitHub repository | CSV | Jah, kord nädalas | [Milleks kasutatakse?] |
+|GITHUB EU-CDC/Respiratory_viruses_weekly_data | CSV | Jah, kord nädalas | Kasutame siit täpsemalt kahte andmestikku: 
+1) SARITestsDetectionsPositivity.csv - andmestikus on testid, mis on tehtud haiglates. Haiglast tuleb raskemate juhtumite info.
+2) sentinelTestsDetectionsPositivity.csv - testid, mis on tehtud mujal, nt. perearsti juures. Perearsti juurest keskmise ja kergema taseme põdemised. 
 
 ## Andmevoog
 
@@ -30,32 +32,31 @@ flowchart LR
     scheduler[Cron scheduler] --> ingest
 ```
 
-> Täpsusta diagrammi vastavalt oma projektile — lisa rohkem andmeallikaid, mudeleid või teenuseid.
-
 ## Andmebaasi kihid
 
 | Kiht | Roll |
 |------|------|
-| `staging` | Hoiab allika andmeid töötlemata kujul. |
-| `mart` | Hoiab transformeeritud ja ärilogikat sisaldavaid tabeleid. |
+| `PostgreSQL_staging` | Hoiab allika andmeid töötlemata kujul. |
+| `PostgreSQL mart` | Hoiab transformeeritud ja ärilogikat sisaldavaid tabeleid. |
 
 ## Tööjaotus
 
 | Roll | Vastutus | Täitja |
 |------|----------|--------|
-| Andmeallika omanik | Kirjutab sissevõtu loogika, hoiab API-t töös | [Nimi] |
-| Transformatsioonide omanik | Kirjutab mart kihi mudelid ja mõõdikute arvutuse | [Nimi] |
-| Kvaliteedi omanik | Kirjutab testid ja vaatab läbi ebaõnnestunud kontrollid | [Nimi] |
-| Näidikulaua omanik | Ehitab näidikulaua ja seob selle äriküsimusega | [Nimi] |
+| Andmeallika omanik | Kirjutab sissevõtu loogika, hoiab API-t töös | Mariliis Randmer |
+| Transformatsioonide omanik | Kirjutab mart kihi mudelid ja mõõdikute arvutuse | Madli Potti |
+| Kvaliteedi omanik | Kirjutab testid ja vaatab läbi ebaõnnestunud kontrollid | Mirell Mägi |
+| Näidikulaua omanik | Ehitab näidikulaua ja seob selle äriküsimusega | Annika Kask |
 
 ## Riskid
 
 | Risk | Mõju | Maandus |
 |------|------|---------|
-| [Risk 1 — näiteks: API ei vasta] | [Mis juhtub?] | [Kuidas maandad?] |
-| [Risk 2] | [Mis juhtub?] | [Kuidas maandad?] |
-| [Risk 3] | [Mis juhtub?] | [Kuidas maandad?] |
+| Risk 1 — Andmeallikaid ei uuendata regulaarselt. | Uue nädala tulemus jääb sisse laadimata ja sisu aegub ning näidikulaud jääb tühjaks. | Ehitame protsessi selliselt, et kui andmeid peale ei tule, siis protsess jätkab andmete järele pärimist mõistliku regulaarsusega. Võimalusel kuvab seni hoiatavat silti näidikulaual. |
+| Risk 2 — Andmed muutuvad tagantjärele. | Valime sobiva ajaakna, mille raames andmete sisse laadimise protsess võrdleb vanu tulemusi baasis olevaga ja kui väärtus erineb, kirjutab vana üle, kui ei, siis jätab samaks. |
+| Risk 3 — [Mis juhtub?] | [Kuidas maandad?] |
 
 ## Privaatsus ja turve
 
-[Kirjelda, millised isiku- või tundlikud andmed teie projektis esinevad (kui üldse) ja kuidas neid kaitsete. Isikuandmed peavad olema anonümiseeritud. Andmebaasi paroolid peavad tulema `.env` failist.]
+Isiku- ega tundlikke andmeid antud projektis ei kasutata. Meditsiinilised andmed kuuluksid tundlike andmete hulka, kuid kuna tegemist on anonüümsete andmestikega, kus teame ainult testi tegemise nädalat, riiki ja testitulemuse saanud isiku vanust (millest viimast analüüsi ei kaasa), ei ole selle põhjal võimalik isikuid ka kaudselt tuvastada.
+Andmebaasi paroolid tulevad .env failist.
