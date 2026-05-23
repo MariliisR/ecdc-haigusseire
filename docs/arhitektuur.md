@@ -36,7 +36,7 @@ flowchart LR
 | Kiht | Roll |
 |------|------|
 | `PostgreSQL_staging` | Hoiab allika andmeid töötlemata kujul. |
-| `PostgreSQL mart` | Hoiab transformeeritud ja ärilogikat sisaldavaid tabeleid. |
+| `PostgreSQL mart` | Hoiab transformeeritud ja äriloogikat sisaldavaid tabeleid. |
 
 ## Tööjaotus
 
