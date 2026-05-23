@@ -53,7 +53,7 @@ flowchart LR
 |------|------|---------|
 | Andmeallikaid ei uuendata regulaarselt. | Uue nädala tulemus jääb sisse laadimata ja sisu aegub ning näidikulaud jääb tühjaks. | Ehitame protsessi selliselt, et kui andmeid peale ei tule, siis protsess jätkab andmete järele pärimist mõistliku regulaarsusega. Võimalusel kuvab seni hoiatavat silti näidikulaual. |
 | Andmed muutuvad tagantjärele. | Välja kuvatavad andmed ei vasta tegelikkusele. | Valime sobiva ajaakna, mille raames andmete sisse laadimise protsess võrdleb vanu tulemusi baasis olevaga ja kui väärtus erineb, kirjutab vana üle, kui ei, siis jätab samaks. |
-| Mõne riigi nädala andmed võivad jääda puudulikuks kui nad andmeid ei esita | Võrdlused riikide vahel võivad olla ebatäpsed. | Rakendame quality checkid puuduvate väärtuste tuvastamiseks ja märgime puuduvad andmed näidikulaual.
+| Mõne riigi nädalased andmed võivad jääda puudulikuks, kui andmeid ei esitata | Võrdlused riikide vahel võivad olla ebatäpsed ning analüüs võib põhineda mittetäielikel andmetel. | Rakendame quality checkid puuduvate väärtuste tuvastamiseks ja märgime puuduvad andmed näidikulaual.
 
 ## Privaatsus ja turve
 
