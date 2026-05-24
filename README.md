@@ -8,19 +8,21 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 **Mõõdikud:**
 
-1. Esimene KPI või mõõdik — Kõrgeim positiivsete testide arv nädalate lõikes riigi ja haiguse kaupa
-2. Teine KPI või mõõdik - Millistel perioodidel on haigusaktiivsus kõrgeim
-3. Kolmas KPI või mõõdik — esialgu ei lisa
+1. Kõrgeim positiivsete testide arv nädalate lõikes riigi ja haiguse kaupa
+2. Millistel perioodidel on haigusaktiivsus kõrgeim
+3. - esialgu ei lisa -
 
 ## Arhitektuur
 
 ```mermaid
 flowchart LR
-    source[Andmeallikas] --> ingest[Sissevõtt]
-    ingest --> staging[(staging)]
-    staging --> transform[Transformatsioon]
-    transform --> mart[(mart)]
-    mart --> dashboard[Näidikulaud]
+    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
+    ingest --> staging[(PostgreSQL_staging)]
+    staging --> transform[SQL transformatsioon]
+    transform --> mart[(PostgreSQL mart)]
+    mart --> dashboard[Apache Superset]
+    mart --> quality[Andmekvaliteedi testid]
+    scheduler[Cron scheduler] --> ingest
 ```
 
 Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
