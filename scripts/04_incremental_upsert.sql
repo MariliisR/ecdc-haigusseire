@@ -5,13 +5,13 @@
    - UPDATE muutunud read
    - AUDIT kustutatavad read
    - DELETE puuduvad read
+    ========================================================
+    ========================================================
+    1. UPSERT (INSERT + UPDATE ainult muutunud ridadele)
     ======================================================== */
 
-/* =========================================================
-   1. UPSERT (INSERT + UPDATE)
-   ========================================================= */
-
 insert into silver.fact_respiratory_surveillance (
+
     yearweek,
     countryname,
     survtype,
@@ -21,6 +21,7 @@ insert into silver.fact_respiratory_surveillance (
 )
 
 select
+
     yearweek,
     countryname,
     survtype,
@@ -34,7 +35,7 @@ where pathogen in (
     'RSV',
     'SARS-CoV-2'
 )
-    
+
 and indicator in (
     'detections',
     'tests'
@@ -56,8 +57,11 @@ on conflict (
 )
 
 do update set
+
     value = excluded.value,
-    updated_at = current_timestamp;
+    updated_at = current_timestamp
+
+where silver.fact_respiratory_surveillance.value <> excluded.value;
 
 /* =====================================================
 AUDIT - KUSTUTAMISELE MINEVAD READ
@@ -114,7 +118,6 @@ where not exists (
             survtype,
             pathogen,
             indicator
-
     ) src
 
     where src.yearweek = tgt.yearweek
@@ -125,7 +128,7 @@ where not exists (
 );
 
 /* ======================================================
-DELETE FAKTITABELIST
+DELETE FAKTITABELIST - Silverist
 ========================================================= */
 delete from silver.fact_respiratory_surveillance tgt
 where not exists (
@@ -156,7 +159,6 @@ where not exists (
             survtype,
             pathogen,
             indicator
-
     ) src
 
     where src.yearweek = tgt.yearweek
