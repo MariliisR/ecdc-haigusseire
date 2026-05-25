@@ -1,14 +1,15 @@
-/* UNIQUE constraint / index ON CONFLICT jaoks, sest oodatud tulemuses on nende 5 veeru kombinatsioon tabelis unikaalne */
-create unique index if not exists uq_fact_respiratory
-on silver.fact_respiratory_surveillance (
-    yearweek,
-    countryname,
-    survtype,
-    pathogen,
-    indicator
-);
+/*  ========================================================
+    INCREMENTAL LOAD: bronze -> silver
+    Teeb:
+   - INSERT uued read
+   - UPDATE muutunud read
+   - AUDIT kustutatavad read
+   - DELETE puuduvad read
+    ======================================================== */
 
-/* UPSERT (INSERT + UPDATE) */
+/* =========================================================
+   1. UPSERT (INSERT + UPDATE)
+   ========================================================= */
 
 insert into silver.fact_respiratory_surveillance (
     yearweek,
@@ -46,7 +47,6 @@ group by
     pathogen,
     indicator
 
-
 on conflict (
     yearweek,
     countryname,
@@ -59,9 +59,74 @@ do update set
     value = excluded.value,
     updated_at = current_timestamp;
 
+/* =====================================================
+AUDIT - KUSTUTAMISELE MINEVAD READ
+======================================================== */
+insert into audit.deleted_fact_respiratory_surveillance (
 
-/* DELETE read, mida source'is enam pole, eemaldame ka tabelist */
+    yearweek,
+    countryname,
+    survtype,
+    pathogen,
+    indicator,
+    value,
+    created_at,
+    updated_at
+)
 
+select
+
+    tgt.yearweek,
+    tgt.countryname,
+    tgt.survtype,
+    tgt.pathogen,
+    tgt.indicator,
+    tgt.value,
+    tgt.created_at,
+    tgt.updated_at
+
+from silver.fact_respiratory_surveillance tgt
+where not exists (
+    select 1
+    from (
+        select
+            yearweek,
+            countryname,
+            survtype,
+            pathogen,
+            indicator
+
+        from bronze.raw_ecdc_tests
+        where pathogen in (
+            'Influenza',
+            'RSV',
+            'SARS-CoV-2'
+        )
+
+        and indicator in (
+            'detections',
+            'tests'
+        )
+
+        group by
+            yearweek,
+            countryname,
+            survtype,
+            pathogen,
+            indicator
+
+    ) src
+
+    where src.yearweek = tgt.yearweek
+      and src.countryname = tgt.countryname
+      and src.survtype = tgt.survtype
+      and src.pathogen = tgt.pathogen
+      and src.indicator = tgt.indicator
+);
+
+/* ======================================================
+DELETE FAKTITABELIST
+========================================================= */
 delete from silver.fact_respiratory_surveillance tgt
 where not exists (
     select 1
