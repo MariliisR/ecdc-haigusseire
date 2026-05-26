@@ -16,20 +16,50 @@ services:
     container_name: ecdc-haigusseire-db
     env_file:
       - .env
+
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+
     ports:
       - "${DB_PORT_HOST:-55432}:5432"
+
     volumes:
-      - ./init:/docker-entrypoint-initdb.d   # SQL-skriptid, mis käivituvad esimesel korral
+      - ./init:/docker-entrypoint-initdb.d
       - pgdata:/var/lib/postgresql
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-praktikum}"]
       interval: 10s
       retries: 5
       start_period: 5s
+
+  superset:
+    image: apache/superset:latest
+    container_name: ecdc-haigusseire-superset
+
+    ports:
+      - "8088:8088"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    command: >
+      sh -c "
+      superset db upgrade &&
+      superset fab create-admin
+      --username admin
+      --firstname Admin
+      --lastname User
+      --email admin@example.com
+      --password admin || true &&
+      superset init &&
+      superset run -h 0.0.0.0 -p 8088
+      "
+
+    
 
   # --- Töövoo konteiner (nt Python ETL skript) ---
   # Kasuta seda, kui sul on lihtne Python-põhine töövoog ilma Airflow'ta.
