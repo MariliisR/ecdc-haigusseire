@@ -9,7 +9,9 @@ python3 /app/scripts/ingest2.py
 psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}" \
     -f /app/scripts/04_incremental_upsert.sql
 
-# 3. Käivita kvaliteeditest
+# 3. Gold vaade uueneb automaatselt (VIEW)
+
+# 4. Käivita kvaliteeditest
 psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}" \
     -f /app/scripts/08_quality_tests.sql
 
