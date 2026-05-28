@@ -4,9 +4,11 @@
 
 ## Mis on valmis
 
-- [ ] Docker Compose käivitab kõik teenused
-- [ ] Andmeid saadakse allikast kätte
-- [ ] Andmed laetakse `staging` kihti
+- [x] Docker Compose käivitab andmebaasi ja CRON konteineri
+- [x] Andmeid saadakse allikast kätte (ECDC GitHub, 2 CSV faili, 84 570 rida)
+- [x] Andmed laetakse bronze kihti (tabel bronze.raw_ecdc_tests)
+- [x] Logimine lisatud — logifail salvestatakse logs/ingest.log
+- [x] CRON seadistatud — käivitub igal laupäeval kell 6
 - [ ] Vähemalt üks transformatsioon toimib
 - [ ] Vähemalt üks näidikulaud on nähtaval
 - [ ] Vähemalt üks andmekvaliteedi test läbib
@@ -26,12 +28,9 @@
 
 ## Kontrollpunkt
 
-Käsk, millega saab kontrollida, et töövoog töötab:
-
 ```bash
-# [Lisa siia käsk, mis näitab, et andmed liiguvad allikast näidikulauani]
-# Näiteks:
-docker compose exec pipeline python scripts/run_pipeline.py check
+docker compose up -d
+python3 scripts/ingest2.py
 ```
 
-Oodatav tulemus: [Kirjelda, mida töötav süsteem väljastab]
+Oodatav tulemus: "Andmed laaditud tabelisse bronze.raw_ecdc_tests (84570 rida)"
