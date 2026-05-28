@@ -4,13 +4,16 @@
 
 ## Äriküsimus
 
-Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimesel otsustada, kuhu on turvalisem reisida.
+Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimestel hinnata haigusaktiivsust ning teha teadlikumaid reisimisotsuseid.
 
 **Mõõdikud:**
 
-1. Kõrgeim positiivsete testide arv nädalate lõikes riigi ja haiguse kaupa
-2. Millistel perioodidel on haigusaktiivsus kõrgeim
-3. - esialgu ei lisa -
+1. Positiivsete testide arv nädalate lõikes riigi ja haiguse kaupa
+    * Arvutame iga nädala kohta positiivsete hingamisteede viiruse testide koguarvu Euroopa riikides.
+2. Positiivsete testide määr riikide lõikes
+    * Arvutame positiivsete testide osakaalu kõigist tehtud testidest iga riigi kohta nädalapõhiselt.
+3. Positiivsete testide määr viirusetüüpide lõikes
+    * Võrdleme Influenza, RSV ja SARS-CoV-2 positiivsete testide määra riikide ja nädalate lõikes.
 
 ## Arhitektuur
 
@@ -31,18 +34,18 @@ Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
 
 | Allikas | Tüüp | Ajas muutuv? | Roll |
 |---------|------|--------------|------|
-| [Andmeallika nimi] | [API / fail / andmebaas] | Jah, [iga tund / päevas / muu] | Põhiandmevoog |
+| [ECDC respiratory virus surveillance data] | [CSV] | Jah, [nädalapõhiselt, laupäeviti] | Põhiandmevoog |
 | [Teise allika nimi] | [seed / dim-tabel] | Ei, staatiline | Kõrvaltabel |
 
 ## Stack
 
 | Komponent | Tööriist |
 |-----------|---------|
-| Sissevõtt | [Python / Airflow / muu] |
-| Transformatsioon | [SQL / dbt / muu] |
+| Sissevõtt | [Python] |
+| Transformatsioon | [SQL] |
 | Andmehoidla | PostgreSQL |
-| Näidikulaud | [Superset / Streamlit / muu] |
-| Orkestreerimine | [Airflow / cron / muu] |
+| Näidikulaud | [Apache Superset] |
+| Orkestreerimine | [cron] |
 
 ## Käivitamine
 
@@ -78,11 +81,12 @@ Vajalikud muutujad:
 
 ## Andmevoog lühidalt
 
-1. **Sissevõtt** — [Kirjelda, kuidas andmed allikast kätte saadakse]
-2. **Laadimine** — Andmed laaditakse `staging` kihti
-3. **Transformatsioon** — [Kirjelda peamised arvutused ja mudelid]
+1. **Sissevõtt** — Pythoni ingest2-skript laeb ECDC seireandmed alla ning salvestab need Bronze kihti.
+2. **Laadimine** — Toorandmed salvestatakse PostgreSQL Bronze skeemi
+3. **Transformatsioon** — Silver kihis andmed puhastatakse ja normaliseeritakse.
+                        — Gold kihis arvutatakse nädalapõhised agregeeritud mõõdikud.
 4. **Testimine** — [Mitu] andmekvaliteedi testi kontrollivad korrektsust
-5. **Näidikulaud** — [Kirjelda lühidalt, mida näidikulaud näitab]
+5. **Näidikulaud** — Apache Superset visualiseerib haigusaktiivsuse trendid ja positiivsuse määrad.
 
 ## Andmekvaliteedi testid
 
@@ -90,8 +94,8 @@ Projekt kontrollib järgmist:
 
 1. [Test 1 - nt: kasutajate ID on unikaalne]
 2. [Test 2 - nt: tellimuse summa pole null]
-3. [Test 3 - nt: kuupäev jääb vahemikku 2020-2026]
-[Lisa rohkem, kui sul on]
+[yearweek väärtus peab vastama ISO nädalavormingule]
+[countryname ei tohi olla NULL]
 
 Testide tulemused: [kuhu salvestatakse / kuidas vaadata]
 
@@ -112,10 +116,18 @@ Testide tulemused: [kuhu salvestatakse / kuidas vaadata]
 ## Kokkuvõte, puudused ja võimalikud edasiarendused
 
 **Kokkuvõte:**
-- [Loetle, mis on lõpule viidud, mis töötab hästi]
+- Valmis on:
+    * ingest pipeline
+    * Bronze / Silver / Gold kihid
+    * PostgreSQL andmeladu
+    * [nädalapõhised mõõdikud]
+    * [Superseti dashboardid]
 
 **Puudused:**
 - [Loetle ausalt, mis jäi tegemata - see ei mõjuta hinnet negatiivselt, vaid aitab hinnata]
+- [automaatseid data quality alert’eid veel ei ole]
+- [incremental processing puudub]
+- [dashboard refresh toimub käsitsi]
 
 **Mis edasi:**
 - [Mida tahaksid edasi teha, kui aega oleks rohkem]
