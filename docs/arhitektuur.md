@@ -3,7 +3,7 @@
 
 ## Äriküsimus
 
-Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimesel otsustada, kuhu ja millal on turvalisem reisida.
+Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimestel hinnata haigusaktiivsust ning teha teadlikumaid reisimisotsuseid.
 
 ## Mõõdikud
 

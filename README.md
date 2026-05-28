@@ -94,13 +94,22 @@ Vajalikud muutujad:
 
 Projekt kontrollib järgmist:
 
-1. [Test 1 - yearweek väärtus peab vastama ISO nädalavormingule]
-2. [Test 2 - countryname ei tohi olla NULL]
-3. [Test 3 - nt: tests väärtused ei tohi olla negatiivsed]
-4. [Test 4 - nt: detections väärtused ei tohi ületada tests väärtust]
-5. [Test 5 - pathogen väärtus peab kuuluma lubatud viiruste hulka]
+1. Bronze tabelis peab olema vähemalt üks rida.
+2. yearweek väärtus ei tohi olla NULL.
+3. countryname ei tohi olla NULL.
+4. pathogen väärtus ei tohi olla NULL.
+5. value väärtus ei tohi olla negatiivne.
+6. indicator väärtus peab olema üks lubatud väärtustest: detections, tests või positivity.
+7. Silver fact tabelis ei tohi olla duplikaate primaarvõtme väljade lõikes.
+8. Silver kihis peavad olema ainult äriküsimuse jaoks vajalikud viirused: Influenza, RSV ja SARS-CoV-2.
+9. Silver kihis peavad indicator väärtused olema ainult tests või detections.
 
-Testide tulemused: [kuhu salvestatakse / kuidas vaadata]
+Testide tulemused: Testide tulemused salvestatakse tabelisse quality.test_results. 
+Tulemusi saab vaadata PostgreSQL päringuga:
+
+SELECT *
+FROM quality.test_results
+ORDER BY layer, test_name;
 
 ## Projekti struktuur
 
