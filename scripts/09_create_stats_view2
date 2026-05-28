@@ -32,6 +32,10 @@ WITH agg AS (
                                   -- kombinatsiooni kohta
 )
 
+/* ==========================================================================
+Agregeerime Silver-layeri seireandmed nädalapõhiseks Gold-layeri faktvaateks,
+mida kasutatakse Superseti visualisatsioonides ja mõõdikute arvutamisel. 
+============================================================================ */
 SELECT
     week_start_date,
     yearweek,
