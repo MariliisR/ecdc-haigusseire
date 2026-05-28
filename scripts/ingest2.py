@@ -2,6 +2,20 @@ from sqlalchemy import create_engine, text
 import pandas as pd
 import os
 from dotenv import load_dotenv
+import logging
+import os
+
+# Seadista logimine
+os.makedirs("logs", exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[
+        logging.FileHandler("logs/ingest.log"),
+        logging.StreamHandler()  # kuvab ka terminalis
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Lae .env fail
 load_dotenv()
@@ -20,7 +34,7 @@ def fetch_all_data():
 
     for url in URLS:
 
-        print(f"Tõmban andmeid:\n{url}")
+        logger.info(f"Tõmban andmeid: {url}")
 
         df = pd.read_csv(url)
 
@@ -42,7 +56,7 @@ def load_to_db(df):
     db_url = (
         f"postgresql://{os.getenv('POSTGRES_USER')}:"
         f"{os.getenv('POSTGRES_PASSWORD')}@localhost:"
-        f"{os.getenv('DB_PORT_HOST')}/"
+        f"{os.getenv('POSTGRES_PORT_HOST')}/"
         f"{os.getenv('POSTGRES_DB')}"
     )
 
