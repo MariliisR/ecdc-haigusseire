@@ -77,8 +77,31 @@ services:
       TZ: ${TZ}
     command: ["/app/docker/entrypoints/run-server.sh"]
 
+# CRON — käivitab pipeline'i igal laupäeval
+  cron:
+    image: python:3.11-slim
+    container_name: ecdc-haigusseire-cron
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      DB_PORT_HOST: ${POSTGRES_PORT_HOST}
+    command: >
+      /bin/sh -c "pip install pandas sqlalchemy psycopg2-binary python-dotenv -q &&
+      apt-get update -q && apt-get install -y -q cron postgresql-client &&
+      echo '0 6 * * 6 /bin/bash /app/scripts/cron_job.sh >> /app/logs/cron.log 2>&1' | crontab - &&
+      cron -f"
+    restart: unless-stopped
+
 volumes:
   pgdata:
     name: ecdc-haigusseire-pgdata
   superset_home:
     name: ecdc-haigusseire-supersethome
+
