@@ -34,18 +34,18 @@ Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
 
 | Allikas | Tüüp | Ajas muutuv? | Roll |
 |---------|------|--------------|------|
-| [ECDC respiratory virus surveillance data] | [CSV] | Jah, [nädalapõhiselt, laupäeviti] | Põhiandmevoog |
-| [Teise allika nimi] | [seed / dim-tabel] | Ei, staatiline | Kõrvaltabel |
+| ECDC respiratory virus surveillance data | CSV | Jah, nädalapõhiselt, laupäeviti | Põhiandmevoog |
+| [Hetkel meie lahenduse juures pole] | [seed / dim-tabel] | Ei, staatiline | Kõrvaltabel |
 
 ## Stack
 
 | Komponent | Tööriist |
 |-----------|---------|
-| Sissevõtt | [Python] |
-| Transformatsioon | [SQL] |
+| Sissevõtt | Python |
+| Transformatsioon | SQL |
 | Andmehoidla | PostgreSQL |
-| Näidikulaud | [Apache Superset] |
-| Orkestreerimine | [cron] |
+| Näidikulaud | Apache Superset |
+| Orkestreerimine | cron |
 
 ## Käivitamine
 
@@ -92,10 +92,11 @@ Vajalikud muutujad:
 
 Projekt kontrollib järgmist:
 
-1. [Test 1 - nt: kasutajate ID on unikaalne]
-2. [Test 2 - nt: tellimuse summa pole null]
-[yearweek väärtus peab vastama ISO nädalavormingule]
-[countryname ei tohi olla NULL]
+1. [Test 1 - yearweek väärtus peab vastama ISO nädalavormingule]
+2. [Test 2 - countryname ei tohi olla NULL]
+3. [Test 3 - nt: tests väärtused ei tohi olla negatiivsed]
+4. [Test 4 - nt: detections väärtused ei tohi ületada tests väärtust]
+5. [Test 5 - pathogen väärtus peab kuuluma lubatud viiruste hulka]
 
 Testide tulemused: [kuhu salvestatakse / kuidas vaadata]
 
