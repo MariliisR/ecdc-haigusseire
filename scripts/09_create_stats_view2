@@ -1,4 +1,4 @@
-CREATE VIEW gold.weekly_virus_stats AS
+CREATE OR REPLACE VIEW gold.weekly_virus_stats AS
 
 WITH agg AS (
 
