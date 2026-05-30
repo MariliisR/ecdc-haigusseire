@@ -51,24 +51,22 @@ Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
 
 ## Käivitamine
 
+## Käivitamine
+
 ```bash
 # 1. Klooni repo ja liigu kausta
-git clone <repo-url>
-cd <projekti-kaust>
+git clone https://github.com/MariliisR/ecdc-haigusseire.git
+cd ecdc-haigusseire
 
 # 2. Kopeeri keskkonnamuutujad
 cp .env.example .env
-# Muuda .env failis paroolid ja muud seaded vastavalt vajadusele
+# Muuda .env failis paroolid vastavalt vajadusele
 
-# 3. Käivita teenused
+# 3. Käivita teenused — andmed laaditakse automaatselt
 docker compose up -d --build
-
-# 4. [Vabatahtlik: käivita sissevõtt käsitsi esimesel korral]
-# docker compose exec pipeline python scripts/run_pipeline.py run-all
 ```
 
-Airflow (kui kasutatakse): http://localhost:8080 (kasutaja: airflow / parool: airflow)
-Näidikulaud: http://localhost:[PORT]
+Superset: http://localhost:8088 (kasutaja: admin / parool: vaata .env)
 
 ## Saladused ja konfiguratsioon
 

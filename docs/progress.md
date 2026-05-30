@@ -31,10 +31,9 @@
 ## Kontrollpunkt
 
 ```bash
+docker compose down -v
 docker compose up -d --build
-python3 scripts/ingest2.py
-docker exec -i ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire < scripts/04_incremental_upsert.sql
-docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT COUNT(*) FROM gold.weekly_virus_stats;"
+docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT COUNT(*) FROM silver.fact_respiratory_surveillance;"
 ```
 
-Oodatav tulemus: `count = 23801`
+Oodatav tulemus: `count = 46327`
