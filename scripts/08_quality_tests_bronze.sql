@@ -1,6 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS quality;
 
 CREATE TABLE IF NOT EXISTS quality.test_results (
+    layer text,
     test_name text,
     status text,
     failed_rows integer,
@@ -8,11 +9,13 @@ CREATE TABLE IF NOT EXISTS quality.test_results (
     checked_at timestamptz DEFAULT current_timestamp
 );
 
-TRUNCATE TABLE quality.test_results;
+DELETE FROM quality.test_results
+WHERE layer = 'bronze';
 
 WITH test_cases AS (
 
     SELECT
+        'bronze' AS layer,
         'bronze_has_rows' AS test_name,
         CASE WHEN EXISTS (
             SELECT 1 FROM bronze.raw_ecdc_tests
@@ -22,6 +25,7 @@ WITH test_cases AS (
     UNION ALL
 
     SELECT
+        'bronze',
         'yearweek_not_null',
         COUNT(*)::integer,
         'yearweek ei tohi puududa.'
@@ -31,6 +35,7 @@ WITH test_cases AS (
     UNION ALL
 
     SELECT
+        'bronze',
         'countryname_not_null',
         COUNT(*)::integer,
         'Riigi nimi ei tohi puududa.'
@@ -40,6 +45,7 @@ WITH test_cases AS (
     UNION ALL
 
     SELECT
+        'bronze',
         'value_not_negative',
         COUNT(*)::integer,
         'Testide või positiivsete leidude arv ei tohi olla negatiivne.'
@@ -49,6 +55,7 @@ WITH test_cases AS (
     UNION ALL
 
     SELECT
+        'bronze',
         'pathogen_not_null',
         COUNT(*)::integer,
         'Pathogen ei tohi puududa.'
@@ -58,22 +65,25 @@ WITH test_cases AS (
     UNION ALL
 
     SELECT
+        'bronze',
         'valid_indicator_values',
         COUNT(*)::integer,
-        'Indicator peab olema detections või tests.'
+        'Indicator peab olema detections, tests või positivity.'
     FROM bronze.raw_ecdc_tests
-    WHERE indicator NOT IN ('detections', 'tests')
+    WHERE indicator NOT IN ('detections', 'tests', 'positivity')
 )
 
 INSERT INTO quality.test_results (
+    layer,
     test_name,
     status,
     failed_rows,
     message
 )
 SELECT
+    layer,
     test_name,
-    CASE WHEN failed_rows = 0 THEN 'passed' ELSE 'failed' END,
+    CASE WHEN failed_rows = 0 THEN 'passed' ELSE 'failed' END AS status,
     failed_rows,
     message
 FROM test_cases;

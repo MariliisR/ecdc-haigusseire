@@ -4,26 +4,30 @@
 
 ## Äriküsimus
 
-Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimesel otsustada, kuhu on turvalisem reisida.
+
+Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimestel hinnata haigusaktiivsust ning teha teadlikumaid reisimisotsuseid.
+
 
 **Mõõdikud:**
 
-1. Kõrgeim positiivsete testide arv nädalate lõikes riigi ja haiguse kaupa
-2. Millistel perioodidel on haigusaktiivsus kõrgeim
-3. - esialgu ei lisa -
+1. Positiivsete testide arv nädalate lõikes riigi ja haiguse kaupa
+    * Arvutame iga nädala kohta positiivsete hingamisteede viiruse testide koguarvu Euroopa riikides.
+2. Positiivsete testide määr riikide lõikes
+    * Arvutame positiivsete testide osakaalu kõigist tehtud testidest iga riigi kohta nädalapõhiselt.
+3. Positiivsete testide määr viirusetüüpide lõikes
+    * Võrdleme Influenza, RSV ja SARS-CoV-2 positiivsete testide määra riikide ja nädalate lõikes.
 
 ## Arhitektuur
 
 ```mermaid
 flowchart LR
-    source[ECDC GitHub\nCSV failid] --> ingest[Python ingest2.py]
-    ingest --> bronze[(PostgreSQL\nbronze kiht)]
-    bronze --> transform[SQL upsert]
-    transform --> silver[(PostgreSQL\nsilver kiht)]
-    silver --> gold[(PostgreSQL\ngold vaade)]
-    gold --> dashboard[Apache Superset]
-    gold --> quality[Andmekvaliteedi testid]
-    scheduler[CRON laupäeviti] --> ingest
+    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
+    ingest --> staging[(PostgreSQL_staging)]
+    staging --> transform[SQL transformatsioon]
+    transform --> mart[(PostgreSQL mart)]
+    mart --> dashboard[Apache Superset]
+    mart --> quality[Andmekvaliteedi testid]
+    scheduler[Cron scheduler] --> ingest
 ```
 
 Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
@@ -32,41 +36,39 @@ Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
 
 | Allikas | Tüüp | Ajas muutuv? | Roll |
 |---------|------|--------------|------|
-| ECDC GitHub — SARITestsDetectionsPositivity.csv | CSV | Jah, kord nädalas | Haiglaandmed |
-| ECDC GitHub — sentinelTestsDetectionsPositivity.csv | CSV | Jah, kord nädalas | Perearstide andmed |
+| ECDC respiratory virus surveillance data | CSV | Jah, nädalapõhiselt, laupäeviti | Põhiandmevoog |
+| [Hetkel meie lahenduse juures pole] | [seed / dim-tabel] | Ei, staatiline | Kõrvaltabel |
 
 ## Stack
 
 | Komponent | Tööriist |
 |-----------|---------|
-| Sissevõtt | Python (ingest2.py) |
+| Sissevõtt | Python |
 | Transformatsioon | SQL |
-| Andmehoidla | PostgreSQL (pgDuckDB) |
+| Andmehoidla | PostgreSQL |
 | Näidikulaud | Apache Superset |
-| Orkestreerimine | CRON (Dockeris) |
+| Orkestreerimine | cron |
 
 ## Käivitamine
 
 ```bash
 # 1. Klooni repo ja liigu kausta
-git clone https://github.com/MariliisR/ecdc-haigusseire.git
-cd ecdc-haigusseire
+git clone <repo-url>
+cd <projekti-kaust>
 
 # 2. Kopeeri keskkonnamuutujad
 cp .env.example .env
-# Muuda .env failis paroolid vastavalt vajadusele
+# Muuda .env failis paroolid ja muud seaded vastavalt vajadusele
 
-# 3. Käivita teenused (andmebaas, Superset, CRON)
+# 3. Käivita teenused
 docker compose up -d --build
 
-# 4. Käivita andmete sissevõtt
-python3 scripts/ingest2.py
-
-# 5. Käivita transformatsioon bronze → silver
-docker exec -i ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire < scripts/04_incremental_upsert.sql
+# 4. [Vabatahtlik: käivita sissevõtt käsitsi esimesel korral]
+# docker compose exec pipeline python scripts/run_pipeline.py run-all
 ```
 
-Superset: http://localhost:8088 (kasutaja: admin / parool: vaata .env)
+Airflow (kui kasutatakse): http://localhost:8080 (kasutaja: airflow / parool: airflow)
+Näidikulaud: http://localhost:[PORT]
 
 ## Saladused ja konfiguratsioon
 
@@ -81,22 +83,33 @@ Vajalikud muutujad:
 
 ## Andmevoog lühidalt
 
-1. **Sissevõtt** — [Kirjelda, kuidas andmed allikast kätte saadakse]
-2. **Laadimine** — Andmed laaditakse `staging` kihti
-3. **Transformatsioon** — [Kirjelda peamised arvutused ja mudelid]
+1. **Sissevõtt** — Pythoni ingest2-skript laeb ECDC seireandmed alla ning salvestab need Bronze kihti.
+2. **Laadimine** — Toorandmed salvestatakse PostgreSQL Bronze skeemi
+3. **Transformatsioon** — Silver kihis andmed puhastatakse ja normaliseeritakse.
+                        — Gold kihis arvutatakse nädalapõhised agregeeritud mõõdikud.
 4. **Testimine** — [Mitu] andmekvaliteedi testi kontrollivad korrektsust
-5. **Näidikulaud** — [Kirjelda lühidalt, mida näidikulaud näitab]
+5. **Näidikulaud** — Apache Superset visualiseerib haigusaktiivsuse trendid ja positiivsuse määrad.
 
 ## Andmekvaliteedi testid
 
 Projekt kontrollib järgmist:
 
-1. [Test 1 - nt: kasutajate ID on unikaalne]
-2. [Test 2 - nt: tellimuse summa pole null]
-3. [Test 3 - nt: kuupäev jääb vahemikku 2020-2026]
-[Lisa rohkem, kui sul on]
+1. Bronze tabelis peab olema vähemalt üks rida.
+2. yearweek väärtus ei tohi olla NULL.
+3. countryname ei tohi olla NULL.
+4. pathogen väärtus ei tohi olla NULL.
+5. value väärtus ei tohi olla negatiivne.
+6. indicator väärtus peab olema üks lubatud väärtustest: detections, tests või positivity.
+7. Silver fact tabelis ei tohi olla duplikaate primaarvõtme väljade lõikes.
+8. Silver kihis peavad olema ainult äriküsimuse jaoks vajalikud viirused: Influenza, RSV ja SARS-CoV-2.
+9. Silver kihis peavad indicator väärtused olema ainult tests või detections.
 
-Testide tulemused: [kuhu salvestatakse / kuidas vaadata]
+Testide tulemused: Testide tulemused salvestatakse tabelisse quality.test_results. 
+Tulemusi saab vaadata PostgreSQL päringuga:
+
+SELECT *
+FROM quality.test_results
+ORDER BY layer, test_name;
 
 ## Projekti struktuur
 
@@ -115,10 +128,18 @@ Testide tulemused: [kuhu salvestatakse / kuidas vaadata]
 ## Kokkuvõte, puudused ja võimalikud edasiarendused
 
 **Kokkuvõte:**
-- [Loetle, mis on lõpule viidud, mis töötab hästi]
+- Valmis on:
+    * ingest pipeline
+    * Bronze / Silver / Gold kihid
+    * PostgreSQL andmeladu
+    * [nädalapõhised mõõdikud]
+    * [Superseti dashboardid]
 
 **Puudused:**
 - [Loetle ausalt, mis jäi tegemata - see ei mõjuta hinnet negatiivselt, vaid aitab hinnata]
+- [automaatseid data quality alert’eid veel ei ole]
+- [incremental processing puudub]
+- [dashboard refresh toimub käsitsi]
 
 **Mis edasi:**
 - [Mida tahaksid edasi teha, kui aega oleks rohkem]
