@@ -77,6 +77,28 @@ services:
       TZ: ${TZ}
     command: ["/app/docker/entrypoints/run-server.sh"]
 
+# Esmakordne andmete laadimine käivitusel
+  ingest:
+    image: python:3.11-slim
+    container_name: ecdc-haigusseire-ingest
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    command: >
+      /bin/sh -c "pip install pandas sqlalchemy psycopg2-binary python-dotenv -q &&
+      apt-get update -q && apt-get install -y -q postgresql-client &&
+      python3 scripts/ingest2.py &&
+      psql postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      -f scripts/04_incremental_upsert.sql"
+    restart: "no"
+
 # CRON — käivitab pipeline'i igal laupäeval
   cron:
     image: python:3.11-slim
