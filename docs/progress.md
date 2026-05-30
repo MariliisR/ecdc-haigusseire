@@ -1,7 +1,5 @@
 # Edenemisraport
 
-> **Juhend:** See fail on projektitöö teise nädala väljund. Uuenda lühidalt iga esitamise eel. Kustuta see juhendrida.
-
 ## Mis on valmis
 
 - [x] Docker Compose käivitab kõik teenused (andmebaas, CRON, Superset)
@@ -12,15 +10,15 @@
 - [x] Logimine lisatud — logifail salvestatakse logs/ingest.log
 - [x] CRON seadistatud — käivitub igal laupäeval kell 6
 - [x] Superset käivitub ja on ligipääsetav aadressil http://localhost:8088
-- [ ] Vähemalt üks näidikulaud on nähtaval
-- [ ] Andmekvaliteedi testid
+- [x] Vähemalt üks näidikulaud on nähtaval
+- [x] Andmekvaliteedi testid
 
 [Täpsusta lühidalt, mis täpselt valmis on]
 
 ## Järgmised sammud
 
-- [Esimene tegevus, mis ees ootab]
-- [Teine tegevus]
+- Lisada bronze, silver ja gold kvaliteedikontrollid automaatsesse töövoogu.
+- Supersetis dashboardi täiendamine 1–2 sisulise graafikuga.
 - [Kolmas tegevus]
 
 ## Mis takistab
@@ -33,7 +31,20 @@
 ```bash
 docker compose down -v
 docker compose up -d --build
+
 docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT COUNT(*) FROM silver.fact_respiratory_surveillance;"
+
+docker exec -i ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire < scripts/08_quality_tests_bronze.sql
+
+docker exec -i ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire < scripts/10_quality_tests_silver.sql
+
+docker exec -i ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire < scripts/11_quality_tests_gold.sql
 ```
 
-Oodatav tulemus: `count = 46327`
+Oodatav tulemus:
+- silver.fact_respiratory_surveillance sisaldab andmeid (≈ 46 000+ rida).
+- gold.weekly_virus_stats sisaldab andmeid.
+- Quality testid salvestatakse tabelisse quality.test_results.
+- Kõik Bronze, Silver ja Gold kvaliteedikontrollid annavad staatuse `passed`.
+- Superset avaneb pordil 8088 ja kuvab dashboardi andmeid.
+
