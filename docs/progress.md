@@ -4,14 +4,16 @@
 
 ## Mis on valmis
 
-- [x] Docker Compose käivitab andmebaasi ja CRON konteineri
+- [x] Docker Compose käivitab kõik teenused (andmebaas, CRON, Superset)
 - [x] Andmeid saadakse allikast kätte (ECDC GitHub, 2 CSV faili, 84 570 rida)
 - [x] Andmed laetakse bronze kihti (tabel bronze.raw_ecdc_tests)
+- [x] Transformatsioon töötab — bronze → silver (46 327 rida)
+- [x] Gold vaade on olemas (23 801 rida, weekly_virus_stats)
 - [x] Logimine lisatud — logifail salvestatakse logs/ingest.log
 - [x] CRON seadistatud — käivitub igal laupäeval kell 6
-- [ ] Vähemalt üks transformatsioon toimib
+- [x] Superset käivitub ja on ligipääsetav aadressil http://localhost:8088
 - [ ] Vähemalt üks näidikulaud on nähtaval
-- [ ] Vähemalt üks andmekvaliteedi test läbib
+- [ ] Andmekvaliteedi testid
 
 [Täpsusta lühidalt, mis täpselt valmis on]
 
@@ -29,8 +31,10 @@
 ## Kontrollpunkt
 
 ```bash
-docker compose up -d
+docker compose up -d --build
 python3 scripts/ingest2.py
+docker exec -i ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire < scripts/04_incremental_upsert.sql
+docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT COUNT(*) FROM gold.weekly_virus_stats;"
 ```
 
-Oodatav tulemus: "Andmed laaditud tabelisse bronze.raw_ecdc_tests (84570 rida)"
+Oodatav tulemus: `count = 23801`

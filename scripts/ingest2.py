@@ -55,8 +55,7 @@ def load_to_db(df):
 
     db_url = (
         f"postgresql://{os.getenv('POSTGRES_USER')}:"
-        f"{os.getenv('POSTGRES_PASSWORD')}@localhost:"
-        f"{os.getenv('POSTGRES_PORT_HOST')}/"
+        f"{os.getenv('POSTGRES_PASSWORD')}@db:5432/"
         f"{os.getenv('POSTGRES_DB')}"
     )
 
