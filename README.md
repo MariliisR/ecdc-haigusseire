@@ -16,13 +16,14 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 ```mermaid
 flowchart LR
-    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
-    ingest --> staging[(PostgreSQL_staging)]
-    staging --> transform[SQL transformatsioon]
-    transform --> mart[(PostgreSQL mart)]
-    mart --> dashboard[Apache Superset]
-    mart --> quality[Andmekvaliteedi testid]
-    scheduler[Cron scheduler] --> ingest
+    source[ECDC GitHub\nCSV failid] --> ingest[Python ingest2.py]
+    ingest --> bronze[(PostgreSQL\nbronze kiht)]
+    bronze --> transform[SQL upsert]
+    transform --> silver[(PostgreSQL\nsilver kiht)]
+    silver --> gold[(PostgreSQL\ngold vaade)]
+    gold --> dashboard[Apache Superset]
+    gold --> quality[Andmekvaliteedi testid]
+    scheduler[CRON laupäeviti] --> ingest
 ```
 
 Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
@@ -31,39 +32,41 @@ Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
 
 | Allikas | Tüüp | Ajas muutuv? | Roll |
 |---------|------|--------------|------|
-| [Andmeallika nimi] | [API / fail / andmebaas] | Jah, [iga tund / päevas / muu] | Põhiandmevoog |
-| [Teise allika nimi] | [seed / dim-tabel] | Ei, staatiline | Kõrvaltabel |
+| ECDC GitHub — SARITestsDetectionsPositivity.csv | CSV | Jah, kord nädalas | Haiglaandmed |
+| ECDC GitHub — sentinelTestsDetectionsPositivity.csv | CSV | Jah, kord nädalas | Perearstide andmed |
 
 ## Stack
 
 | Komponent | Tööriist |
 |-----------|---------|
-| Sissevõtt | [Python / Airflow / muu] |
-| Transformatsioon | [SQL / dbt / muu] |
-| Andmehoidla | PostgreSQL |
-| Näidikulaud | [Superset / Streamlit / muu] |
-| Orkestreerimine | [Airflow / cron / muu] |
+| Sissevõtt | Python (ingest2.py) |
+| Transformatsioon | SQL |
+| Andmehoidla | PostgreSQL (pgDuckDB) |
+| Näidikulaud | Apache Superset |
+| Orkestreerimine | CRON (Dockeris) |
 
 ## Käivitamine
 
 ```bash
 # 1. Klooni repo ja liigu kausta
-git clone <repo-url>
-cd <projekti-kaust>
+git clone https://github.com/MariliisR/ecdc-haigusseire.git
+cd ecdc-haigusseire
 
 # 2. Kopeeri keskkonnamuutujad
 cp .env.example .env
-# Muuda .env failis paroolid ja muud seaded vastavalt vajadusele
+# Muuda .env failis paroolid vastavalt vajadusele
 
-# 3. Käivita teenused
+# 3. Käivita teenused (andmebaas, Superset, CRON)
 docker compose up -d --build
 
-# 4. [Vabatahtlik: käivita sissevõtt käsitsi esimesel korral]
-# docker compose exec pipeline python scripts/run_pipeline.py run-all
+# 4. Käivita andmete sissevõtt
+python3 scripts/ingest2.py
+
+# 5. Käivita transformatsioon bronze → silver
+docker exec -i ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire < scripts/04_incremental_upsert.sql
 ```
 
-Airflow (kui kasutatakse): http://localhost:8080 (kasutaja: airflow / parool: airflow)
-Näidikulaud: http://localhost:[PORT]
+Superset: http://localhost:8088 (kasutaja: admin / parool: vaata .env)
 
 ## Saladused ja konfiguratsioon
 
