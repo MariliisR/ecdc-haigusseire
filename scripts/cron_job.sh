@@ -11,8 +11,12 @@ psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
 
 # 3. Gold vaade uueneb automaatselt (VIEW)
 
-# 4. Käivita kvaliteeditest
+# 4. Käivita bronze kvaliteeditest
 psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}" \
     -f /app/scripts/08_quality_tests_bronze.sql
+
+# 5. Käivita silver kvaliteeditest
+psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}" \
+    -f /app/scripts/10_quality_tests_silver.sql
 
 echo "$(date): Andmete uuendamine lõpetatud"
