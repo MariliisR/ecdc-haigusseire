@@ -51,8 +51,6 @@ Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
 
 ## Käivitamine
 
-## Käivitamine
-
 ```bash
 # 1. Klooni repo ja liigu kausta
 git clone https://github.com/MariliisR/ecdc-haigusseire.git
@@ -70,14 +68,18 @@ Superset: http://localhost:8088 (kasutaja: admin / parool: vaata .env)
 
 ## Saladused ja konfiguratsioon
 
-Kõik saladused (paroolid, API võtmed, andmebaasi URL-id) on `.env` failis. Repos on ainult `.env.example`, mis näitab vajalike muutujate struktuuri ilma tegelike väärtusteta. Päris `.env` faili ei tohi GitHubi panna - see on `.gitignore`-s.
-
-Vajalikud muutujad:
-
-| Muutuja | Tähendus | Näide |
-|---------|----------|-------|
-| `DB_PASSWORD` | PostgreSQL parool | (saladus) |
-| `[teised]` | ... | ... |
+| Muutuja | Tähendus |
+|---------|----------|
+| `POSTGRES_USER` | PostgreSQL kasutajanimi |
+| `POSTGRES_PASSWORD` | PostgreSQL parool |
+| `POSTGRES_DB` | Andmebaasi nimi |
+| `POSTGRES_PORT_HOST` | Andmebaasi port |
+| `SUPERSET_SECRET_KEY` | Superseti salajane võti |
+| `SUPERSET_ADMIN_USER` | Superseti admin kasutaja |
+| `SUPERSET_ADMIN_PASSWORD` | Superseti admin parool |
+| `SUPERSET_ADMIN_EMAIL` | Superseti admin e-mail |
+| `SUPERSET_PORT_HOST` | Superseti port |
+| `TZ` | Ajavöönd |
 
 ## Andmevoog lühidalt
 
@@ -85,7 +87,7 @@ Vajalikud muutujad:
 2. **Laadimine** — Toorandmed salvestatakse PostgreSQL Bronze skeemi
 3. **Transformatsioon** — Silver kihis andmed puhastatakse ja normaliseeritakse.
                         — Gold kihis arvutatakse nädalapõhised agregeeritud mõõdikud.
-4. **Testimine** — [Mitu] andmekvaliteedi testi kontrollivad korrektsust
+4. **Testimine** — 9 andmekvaliteedi testi kontrollivad korrektsust
 5. **Näidikulaud** — Apache Superset visualiseerib haigusaktiivsuse trendid ja positiivsuse määrad.
 
 ## Andmekvaliteedi testid
@@ -108,6 +110,9 @@ Tulemusi saab vaadata PostgreSQL päringuga:
 SELECT *
 FROM quality.test_results
 ORDER BY layer, test_name;
+
+**Teadaolev andmekvaliteedi probleem:**
+Mõnes riigis esineb olukordi, kus `detections_total` on suurem kui `tests_total`. See on teadaolev ECDC andmekvaliteedi probleem, mis võib tuleneda aruandlusperioodide erinevusest, dubleerimisest või tagantjärele korrigeerimisest. Andmeid ei filtreerita välja, kuid olukord on dokumenteeritud. Tulevikus lisatakse logimisfunktsioon, mis tuvastab sellised read automaatselt.
 
 ## Projekti struktuur
 

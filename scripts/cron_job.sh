@@ -19,4 +19,8 @@ psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}"
 psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}" \
     -f /app/scripts/10_quality_tests_silver.sql
 
+# 6. Käivita gold kvaliteeditest
+psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}" \
+    -f /app/scripts/11_quality_tests_gold.sql
+
 echo "$(date): Andmete uuendamine lõpetatud"
