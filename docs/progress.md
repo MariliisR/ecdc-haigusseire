@@ -13,18 +13,16 @@
 - [x] Vähemalt üks näidikulaud on nähtaval
 - [x] Andmekvaliteedi testid
 
-[Täpsusta lühidalt, mis täpselt valmis on]
+Täpsem loetelu valmis kvaliteeditestides on Superset -> Dashboard_export -> README.md failis
 
 ## Järgmised sammud
 
 - Lisada bronze, silver ja gold kvaliteedikontrollid automaatsesse töövoogu.
 - Supersetis dashboardi täiendamine 1–2 sisulise graafikuga.
-- [Kolmas tegevus]
 
 ## Mis takistab
 
-- [Probleem 1 — näiteks: API tagastab vigaseid väärtusi ühes linnas]
-- [Probleem 2 — või: "Praegu pole blokeerivaid probleeme"]
+  - Praegu pole blokeerivaid probleeme
 
 ## Kontrollpunkt
 
