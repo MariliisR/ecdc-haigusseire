@@ -37,7 +37,6 @@ Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
 | Allikas | Tüüp | Ajas muutuv? | Roll |
 |---------|------|--------------|------|
 | ECDC respiratory virus surveillance data | CSV | Jah, nädalapõhiselt, laupäeviti | Põhiandmevoog |
-| [Hetkel meie lahenduse juures pole] | [seed / dim-tabel] | Ei, staatiline | Kõrvaltabel |
 
 ## Stack
 
@@ -125,7 +124,27 @@ Mõnes riigis esineb olukordi, kus `detections_total` on suurem kui `tests_total
 ├── docs/
 │   ├── arhitektuur.md      ← nädal 1 väljund
 │   └── progress.md         ← nädal 2 väljund
-└── ...                     ← ülejäänud projektifailid
+├── init/
+│   ├── 01_create_schema_silver.sql
+│   ├── 02_create_fact_table.sql
+│   ├── 05_create_schema_gold.sql
+│   ├── 06_create_schema_audit.sql
+│   ├── 07_create_audit_table.sql
+│   └── 09_create_stats_view.sql
+├── scripts/
+│   ├── 01_create_schema_silver.sql
+│   ├── 02_create_fact_table.sql
+│   ├── 03_initial_load.sql         ← toob puhastamata andmed allikast bronz kihti
+│   ├── 04_incremental_upsert.sql   ← toob puhastatud andmed silver kihti
+│   ├── 05_create_schema_gold.sql
+│   ├── 06_create_schema_audit.sql
+│   ├── 07_create_audit_table.sql   ← sellesse tabelisse salvetamine Deleted read andmeuuendusel
+│   ├── 08_qualiti_tests_bronze.sql
+│   ├── 09_create_stats_view.sql    ← algselt planeeritud andmete transformatsioon silver -> gold kihti
+│   ├── 09_create_stats_view2.sql   ← lõplik versioon andmete transformatsioonist silver -> gold kihti
+│   ├── 10_quality_tests_silver.sql 
+│   └── 11_quality_tests_gold.sql
+└── superset                
 ```
 
 ## Kokkuvõte, puudused ja võimalikud edasiarendused
@@ -145,7 +164,7 @@ Mõnes riigis esineb olukordi, kus `detections_total` on suurem kui `tests_total
 - [dashboard refresh toimub käsitsi]
 
 **Mis edasi:**
-- [Mida tahaksid edasi teha, kui aega oleks rohkem]
+- [Ideaalis võiks andmete sissevõtt toimuda üle API / hetkel kasutusel lahendus impordiks pidevalt uuenevast .csv failist]
 
 ## Meeskond
 
