@@ -1,38 +1,40 @@
 CREATE OR REPLACE VIEW gold.weekly_virus_stats AS
+
 WITH agg AS (
+
     SELECT
-        TO_DATE(
+        yearweek,
+        to_date(
             yearweek || '-1',
             'IYYY-"W"IW-ID'
         ) AS week_start_date,
-        yearweek,
+
         countryname,
         survtype,
         pathogen,
+
         SUM(value) FILTER (
             WHERE indicator = 'tests'
         ) AS tests_total,
+
         SUM(value) FILTER (
             WHERE indicator = 'detections'
         ) AS detections_total
+
     FROM silver.fact_respiratory_surveillance
     GROUP BY
-        yearweek,
-        countryname,
-        survtype,
-        pathogen
+        1,2,3,4,5
 )
+
 SELECT
     week_start_date,
     yearweek,
+
     countryname,
     survtype,
     pathogen,
+
     tests_total,
-    detections_total,
-    ROUND(
-        100.0 * detections_total
-        / NULLIF(tests_total, 0),
-        2
-    ) AS positivity_rate
+    detections_total
+
 FROM agg;
