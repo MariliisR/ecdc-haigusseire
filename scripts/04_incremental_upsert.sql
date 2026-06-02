@@ -1,17 +1,13 @@
-/*  ========================================================
-    INCREMENTAL LOAD: bronze -> silver
-    Teeb:
+/* ========================================================
+   INCREMENTAL LOAD: bronze -> silver
    - INSERT uued read
    - UPDATE muutunud read
    - AUDIT kustutatavad read
    - DELETE puuduvad read
-    ========================================================
-    ========================================================
-    1. UPSERT (INSERT + UPDATE ainult muutunud ridadele)
-    ======================================================== */
+   ======================================================== */
 
+/* 1. UPSERT */
 insert into silver.fact_respiratory_surveillance (
-
     yearweek,
     countryname,
     survtype,
@@ -19,35 +15,30 @@ insert into silver.fact_respiratory_surveillance (
     indicator,
     value
 )
-
 select
-
     yearweek,
     countryname,
     survtype,
     pathogen,
     indicator,
     sum(value) as value
-
 from bronze.raw_ecdc_tests
 where pathogen in (
     'Influenza',
     'RSV',
     'SARS-CoV-2'
 )
-
 and indicator in (
     'detections',
     'tests'
 )
-
+and coalesce(trim(countryname), '') <> 'EU/EEA'
 group by
     yearweek,
     countryname,
     survtype,
     pathogen,
     indicator
-
 on conflict (
     yearweek,
     countryname,
@@ -55,19 +46,14 @@ on conflict (
     pathogen,
     indicator
 )
-
 do update set
-
     value = excluded.value,
     updated_at = current_timestamp
-
 where silver.fact_respiratory_surveillance.value <> excluded.value;
 
-/* =====================================================
-AUDIT - KUSTUTAMISELE MINEVAD READ
-======================================================== */
-insert into audit.deleted_fact_respiratory_surveillance (
 
+/* 2. AUDIT - kustutamisele minevad read */
+insert into audit.deleted_fact_respiratory_surveillance (
     yearweek,
     countryname,
     survtype,
@@ -77,9 +63,7 @@ insert into audit.deleted_fact_respiratory_surveillance (
     created_at,
     updated_at
 )
-
 select
-
     tgt.yearweek,
     tgt.countryname,
     tgt.survtype,
@@ -88,9 +72,9 @@ select
     tgt.value,
     tgt.created_at,
     tgt.updated_at
-
 from silver.fact_respiratory_surveillance tgt
-where not exists (
+where coalesce(trim(tgt.countryname), '') <> 'EU/EEA'
+and not exists (
     select 1
     from (
         select
@@ -99,19 +83,17 @@ where not exists (
             survtype,
             pathogen,
             indicator
-
         from bronze.raw_ecdc_tests
         where pathogen in (
             'Influenza',
             'RSV',
             'SARS-CoV-2'
         )
-
         and indicator in (
             'detections',
             'tests'
         )
-
+        and coalesce(trim(countryname), '') <> 'EU/EEA'
         group by
             yearweek,
             countryname,
@@ -119,7 +101,6 @@ where not exists (
             pathogen,
             indicator
     ) src
-
     where src.yearweek = tgt.yearweek
       and src.countryname = tgt.countryname
       and src.survtype = tgt.survtype
@@ -127,11 +108,11 @@ where not exists (
       and src.indicator = tgt.indicator
 );
 
-/* ======================================================
-DELETE FAKTITABELIST - Silverist
-========================================================= */
+
+/* 3. DELETE faktitabelist */
 delete from silver.fact_respiratory_surveillance tgt
-where not exists (
+where coalesce(trim(tgt.countryname), '') <> 'EU/EEA'
+and not exists (
     select 1
     from (
         select
@@ -140,19 +121,17 @@ where not exists (
             survtype,
             pathogen,
             indicator
-
         from bronze.raw_ecdc_tests
         where pathogen in (
             'Influenza',
             'RSV',
             'SARS-CoV-2'
         )
-
         and indicator in (
             'detections',
             'tests'
         )
-
+        and coalesce(trim(countryname), '') <> 'EU/EEA'
         group by
             yearweek,
             countryname,
@@ -160,7 +139,6 @@ where not exists (
             pathogen,
             indicator
     ) src
-
     where src.yearweek = tgt.yearweek
       and src.countryname = tgt.countryname
       and src.survtype = tgt.survtype
