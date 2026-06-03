@@ -50,20 +50,72 @@ Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
 
 ## Käivitamine
 
+
+### 1. Klooni repo ja liigu kausta
 ```bash
-# 1. Klooni repo ja liigu kausta
 git clone https://github.com/MariliisR/ecdc-haigusseire.git
 cd ecdc-haigusseire
-
-# 2. Kopeeri keskkonnamuutujad
-cp .env.example .env
-# Muuda .env failis paroolid vastavalt vajadusele
-
-# 3. Käivita teenused — andmed laaditakse automaatselt
-docker compose up -d --build
 ```
 
-Superset: http://localhost:8088 (kasutaja: admin / parool: vaata .env)
+### 2. Kopeeri keskkonnamuutujad
+```bash
+cp .env.example .env
+```
+### Muuda .env failis paroolid vastavalt vajadusele
+
+### 3. Käivita teenused — andmed laaditakse automaatselt
+```bash
+docker compose up -d --build
+```
+### 4. Kontrolli, et konteinerid töötavad:
+```bash
+docker compose ps
+```
+Oodatavad konteinerid:
+- ecdc-haigusseire-db
+- ecdc-haigusseire-cron
+- ecdc-haigusseire-superset
+
+### 5. Kontrolli andmete laadimist
+```bash
+docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT COUNT(*) FROM silver.fact_respiratory_surveillance;"
+```
+Oodatav tulemus: tabel sisaldab andmeid.
+
+### 6. Käivita andmevoog käsitsi (testimiseks)
+Tavapäraselt käivitab cron andmevoo automaatselt igal laupäeval kell 06:00. 
+Hindamise ja testimise eesmärgil saab töövoo käivitada ka käsitsi:
+```bash
+docker exec -it ecdc-haigusseire-cron /bin/bash /app/scripts/cron_job.sh
+```
+See käivitab:
+- Andmete laadimise Bronze kihti
+- Bronze → Silver transformatsiooni
+- Gold vaate uuendamise
+- Bronze kvaliteeditestid
+- Silver kvaliteeditestid
+- Gold kvaliteeditestid
+
+### 7. Kontrolli kvaliteeditestide tulemusi
+
+Kõik testid:
+```bash
+docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT layer, test_name, status, failed_rows FROM quality.test_results ORDER BY layer, test_name;"
+```
+
+Ainult vead:
+```bash
+docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT * FROM quality.test_results WHERE status = 'failed';"
+```
+
+### 8. Ava Superset
+Ava brauseris:
+
+http://localhost:8088
+
+või Codespaces puhul ava port 8088.
+
+(kasutaja: admin / parool: vaata .env)
 
 ## Saladused ja konfiguratsioon
 
@@ -93,22 +145,27 @@ Superset: http://localhost:8088 (kasutaja: admin / parool: vaata .env)
 
 Projekt kontrollib järgmist:
 
-1. Bronze tabelis peab olema vähemalt üks rida.
-2. yearweek väärtus ei tohi olla NULL.
-3. countryname ei tohi olla NULL.
-4. pathogen väärtus ei tohi olla NULL.
-5. value väärtus ei tohi olla negatiivne.
-6. indicator väärtus peab olema üks lubatud väärtustest: detections, tests või positivity.
-7. Silver fact tabelis ei tohi olla duplikaate primaarvõtme väljade lõikes.
-8. Silver kihis peavad olema ainult äriküsimuse jaoks vajalikud viirused: Influenza, RSV ja SARS-CoV-2.
-9. Silver kihis peavad indicator väärtused olema ainult tests või detections.
+### Bronze kiht
+- Bronze tabelis peab olema vähemalt üks rida.
+- yearweek väärtus ei tohi olla NULL.
+- countryname ei tohi olla NULL.
+- pathogen väärtus ei tohi olla NULL.
+- value väärtus ei tohi olla negatiivne.
+- indicator väärtus peab olema üks lubatud väärtustest: detections, tests või positivity.
+### Silver kiht
+- Silver fact tabelis ei tohi olla duplikaate primaarvõtme väljade lõikes.
+- Silver kihis peavad olema ainult äriküsimuse jaoks vajalikud viirused: Influenza, RSV ja SARS-CoV-2.
+- Silver kihis peavad indicator väärtused olema ainult tests või detections.
+### Gold kiht
+- Gold tabelis/vaates peab olema vähemalt üks rida
+- väärtus ei tohi olla NULL
+- countryname väärtus ei tohi olla NULL.
+- pathogen väärtus peab olema üks lubatud väärtustest: Influenza, RSV või SARS-CoV-2.
+- tests_total väärtus ei tohi olla negatiivne.
+- detections_total väärtus ei tohi olla negatiivne.
+- Gold kihis ei tohi esineda duplikaate väljade (yearweek, countryname, survtype, pathogen) kombinatsiooni lõikes.
 
 Testide tulemused: Testide tulemused salvestatakse tabelisse quality.test_results. 
-Tulemusi saab vaadata PostgreSQL päringuga:
-
-SELECT *
-FROM quality.test_results
-ORDER BY layer, test_name;
 
 **Teadaolev andmekvaliteedi probleem:**
 Mõnes riigis esineb olukordi, kus `detections_total` on suurem kui `tests_total`. See on teadaolev ECDC andmekvaliteedi probleem, mis võib tuleneda aruandlusperioodide erinevusest, dubleerimisest või tagantjärele korrigeerimisest. Andmeid ei filtreerita välja, kuid olukord on dokumenteeritud. Tulevikus lisatakse logimisfunktsioon, mis tuvastab sellised read automaatselt.
@@ -158,13 +215,12 @@ Mõnes riigis esineb olukordi, kus `detections_total` on suurem kui `tests_total
     * [Superseti dashboardid]
 
 **Puudused:**
-- [Loetle ausalt, mis jäi tegemata - see ei mõjuta hinnet negatiivselt, vaid aitab hinnata]
-- [automaatseid data quality alert’eid veel ei ole]
-- [incremental processing puudub]
-- [dashboard refresh toimub käsitsi]
+- automaatseid data quality alert’eid veel ei ole
+- incremental processing puudub
+- dashboard refresh toimub käsitsi
 
 **Mis edasi:**
-- [Ideaalis võiks andmete sissevõtt toimuda üle API / hetkel kasutusel lahendus impordiks pidevalt uuenevast .csv failist]
+- Ideaalis võiks andmete sissevõtt toimuda üle API / hetkel kasutusel lahendus impordib pidevalt uuenevast .csv failist
 
 ## Meeskond
 
