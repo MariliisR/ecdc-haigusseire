@@ -20,6 +20,7 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 ## Andmevoog
 
+/*
 ```mermaid
 flowchart LR
     source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
@@ -30,33 +31,83 @@ flowchart LR
     mart --> quality[Andmekvaliteedi testid]
     scheduler[Cron scheduler] --> ingest
 ```
+*/
+
+```mermaid
+flowchart LR
+    source[ECDC CSV failid] --> ingest[Python ingest]
+    scheduler[Cron scheduler] --> ingest
+
+    ingest --> bronze[(Bronze)]
+    bronze --> silver[(Silver)]
+
+    silver --> audit[(Audit)]
+
+    silver --> gold[(Gold view)]
+
+    bronze --> quality[Andmekvaliteedi testid]
+    silver --> quality
+    gold --> quality
+
+    gold --> dashboard[Apache Superset]
+```
 
 ## Andmebaasi kihid
 
+/*
 | Kiht | Roll |
 |------|------|
 | `PostgreSQL_staging` | Hoiab allika andmeid töötlemata kujul. |
 | `PostgreSQL mart` | Hoiab transformeeritud ja äriloogikat sisaldavaid tabeleid. |
+*/
+
+| Kiht     | Roll                                                                                       |
+| -------- | ------------------------------------------------------------------------------------------ |
+| `Bronze` | Hoiab ECDC allikast laaditud toorandmeid muutmata kujul.                                   |
+| `Silver` | Sisaldab puhastatud, filtreeritud ja normaliseeritud andmeid, mida kasutatakse analüüsiks. |
+| `Gold`   | Sisaldab äriküsimuste jaoks vajalikke mõõdikuid ja agregeeritud tulemusi.                  |
+| `Audit`  | Säilitab Silver kihist eemaldatud kirjed koos kustutamise aja ja põhjusega.                |
+
+
+## Auditimine
+
+Projekt kasutab audit-skeemi andmete jälgitavuse tagamiseks.
+
+Incremental laadimise käigus võrreldakse Silver kihis olevaid andmeid allikafailidega.
+
+Kui allikast on kirje eemaldatud:
+
+1. Kirje kopeeritakse audit-tabelisse `audit.deleted_fact_respiratory_surveillance`
+2. Salvestatakse kustutamise aeg (`deleted_at`)
+3. Salvestatakse kustutamise põhjus (`delete_reason`)
+4. Kirje eemaldatakse Silver kihist
+
+See võimaldab:
+- säilitada ajaloolist infot,
+- analüüsida allika muudatusi,
+- taastada ekslikult eemaldatud kirjeid,
+- auditeerida ETL protsessi tööd.
+
 
 ## Tööjaotus
 
 | Roll | Vastutus | Täitja |
 |------|----------|--------|
-| Andmeallika omanik | Kirjutab sissevõtu loogika, hoiab API-t töös | Mariliis Randmer |
+| Andmeallika omanik | Kirjutab sissevõtu loogika ja haldab andmeallika laadimist | Mariliis Randmer |
 | Transformatsioonide omanik | Kirjutab mart kihi mudelid ja mõõdikute arvutuse | Madli Potti |
 | Kvaliteedi omanik | Kirjutab testid ja vaatab läbi ebaõnnestunud kontrollid | Mirell Mägi |
 | Näidikulaua omanik | Ehitab näidikulaua ja seob selle äriküsimusega | Annika Kask |
 
 ## Riskid
 
-| Risk | Mõju | Maandus |
-|------|------|---------|
+| Risk                          | Mõju                                           | Maandus                                                                                                                                                  |
+| ----------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Andmed muutuvad tagantjärele. | Välja kuvatavad andmed ei vasta tegelikkusele. | Incremental laadimine võrdleb uusi ja olemasolevaid kirjeid. Muutunud kirjed uuendatakse ning eemaldatud kirjed logitakse audit-skeemi enne kustutamist. |
 | Andmeallikaid ei uuendata regulaarselt. | Uue nädala tulemus jääb sisse laadimata ja sisu aegub ning näidikulaud jääb tühjaks. | Ehitame protsessi selliselt, et kui andmeid peale ei tule, siis protsess jätkab andmete järele pärimist mõistliku regulaarsusega. Võimalusel kuvab seni hoiatavat silti näidikulaual. |
-| Andmed muutuvad tagantjärele. | Välja kuvatavad andmed ei vasta tegelikkusele. | Valime sobiva ajaakna, mille raames andmete sisse laadimise protsess võrdleb vanu tulemusi baasis olevaga ja kui väärtus erineb, kirjutab vana üle, kui ei, siis jätab samaks. |
 | Mõne riigi nädalased andmed võivad jääda puudulikuks, kui andmeid ei esitata | Võrdlused riikide vahel võivad olla ebatäpsed ning analüüs võib põhineda mittetäielikel andmetel. | Rakendame quality checkid puuduvate väärtuste tuvastamiseks ja märgime puuduvad andmed näidikulaual.
 | Mõnes riigis on detections_total suurem kui tests_total. | Positiivsuse määr võib ületada 100%, mis on andmeanalüüsis eksitav. | Tegemist on teadaoleva ECDC andmekvaliteedi probleemiga — põhjuseks võib olla aruandlusperioodide erinevus, dubleerimine või tagantjärele korrigeerimine. Andmeid ei filtreerita välja, kuid olukord on dokumenteeritud. Tulevikus lisatakse logimisfunktsioon, mis tuvastab sellised read automaatselt. |
 
 ## Privaatsus ja turve
 
-Isiku- ega tundlikke andmeid antud projektis ei kasutata. Meditsiinilised andmed kuuluksid tundlike andmete hulka, kuid kuna tegemist on anonüümsete andmestikega, kus teame ainult testi tegemise nädalat, riiki ja testitulemuse saanud isiku vanust (millest viimast analüüsi ei kaasa), ei ole selle põhjal võimalik isikuid ka kaudselt tuvastada.
+Andmestik sisaldab agregeeritud seireandmeid riigi, nädala, viiruse ja mõõdiku tasemel. Isikuandmeid ega tundlikke terviseandmeid ei töödelda.
 Andmebaasi paroolid tulevad .env failist.
