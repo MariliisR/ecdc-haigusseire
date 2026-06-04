@@ -76,9 +76,9 @@ docker compose up -d --build
 docker compose ps
 ```
 Oodatavad konteinerid:
-- ecdc-haigusseire-db
-- ecdc-haigusseire-cron
-- ecdc-haigusseire-superset
+- ecdc-haigusseire-db (Up või Up (healthy))
+- ecdc-haigusseire-cron (Up)
+- ecdc-haigusseire-superset (Up või Up (healthy))
 
 ### 5. Kontrolli andmete laadimist
 ```bash
@@ -110,6 +110,11 @@ docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT
 Ainult vead:
 ```bash
 docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT * FROM quality.test_results WHERE status = 'failed';"
+```
+
+Kontroll, kas Bronze -> Silver transformatsiooni käigus oli kustutamisele minevaid ridasid:
+```bash
+docker exec -it ecdc-haigusseire-db psql -U admin -d ecdc-haigusseire -c "SELECT * FROM audit.deleted_fact_respiratory_surveillance;"
 ```
 
 ### 8. Ava Superset
@@ -203,8 +208,8 @@ See võimaldab:
 ├── .env.example
 ├── .gitignore
 ├── docs/
-│   ├── arhitektuur.md      ← nädal 1 väljund
-│   └── progress.md         ← nädal 2 väljund
+│   ├── arhitektuur.md     
+│   └── progress.md         
 ├── init/
 │   ├── 01_create_schema_silver.sql
 │   ├── 02_create_fact_table.sql
@@ -219,13 +224,22 @@ See võimaldab:
 │   ├── 04_incremental_upsert.sql   ← toob puhastatud andmed silver kihti
 │   ├── 05_create_schema_gold.sql
 │   ├── 06_create_schema_audit.sql
-│   ├── 07_create_audit_table.sql   ← sellesse tabelisse salvetamine Deleted read andmeuuendusel
-│   ├── 08_qualiti_tests_bronze.sql
-│   ├── 09_create_stats_view.sql    ← algselt planeeritud andmete transformatsioon silver -> gold kihti
+│   ├── 07_create_audit_table.sql   ← auditlogi kustutatud kirjete jaoks
+│   ├── 08_quality_tests_bronze.sql
 │   ├── 09_create_stats_view2.sql   ← lõplik versioon andmete transformatsioonist silver -> gold kihti
 │   ├── 10_quality_tests_silver.sql 
-│   └── 11_quality_tests_gold.sql
-└── superset                
+│   ├── 11_quality_tests_gold.sql
+│   ├── cron_job.sh
+│   └── ingest2.py
+└── superset/
+    ├── dashboard_export/
+    │   ├── charts/               ← eksporditud visualiseeringud
+    │   ├── dashboards/           ← eksporditud dashboardid
+    │   ├── databases/            ← andmeallikate definitsioonid
+    │   ├── datasets/PostgreSQL/  ← datasetide definitsioonid
+    │   └── metadata.yaml
+    ├── superset_config.py
+    └── zip_dashboard.py  
 ```
 
 ## Kokkuvõte, puudused ja võimalikud edasiarendused
@@ -235,8 +249,8 @@ See võimaldab:
     * ingest pipeline
     * Bronze / Silver / Gold kihid
     * PostgreSQL andmeladu
-    * [nädalapõhised mõõdikud]
-    * [Superseti dashboardid]
+    * Gold-kihi nädalapõhised koondmõõdikud
+    * Superseti dashboardid
 
 **Puudused:**
 - automaatseid data quality alert’eid veel ei ole
