@@ -17,8 +17,6 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 ## Arhitektuur
 
 <!--
-```mermaid
-flowchart LR
     source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
     ingest --> staging[(PostgreSQL_staging)]
     staging --> transform[SQL transformatsioon]
@@ -26,21 +24,24 @@ flowchart LR
     mart --> dashboard[Apache Superset]
     mart --> quality[Andmekvaliteedi testid]
     scheduler[Cron scheduler] --> ingest
-```
 -->
 
 ```mermaid
 flowchart LR
-    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
+    source[ECDC CSV Files] --> ingest[Python ingest]
+    scheduler[Cron scheduler] --> ingest
+
     ingest --> bronze[(Bronze)]
     bronze --> silver[(Silver)]
-    silver --> gold[(Gold view)]
-    silver --> audit[(Audit schema)]
-    gold --> dashboard[Apache Superset]
-    bronze --> quality[Data Quality]
+    silver --> gold[(Gold)]
+
+    silver --> audit[(Audit)]
+
+    bronze --> quality[Data Quality Tests]
     silver --> quality
     gold --> quality
-    scheduler[Cron scheduler] --> ingest
+
+    gold --> dashboard[Apache Superset]
 ```
 
 Täpsem kirjeldus: [`docs/arhitektuur.md`](docs/arhitektuur.md)
