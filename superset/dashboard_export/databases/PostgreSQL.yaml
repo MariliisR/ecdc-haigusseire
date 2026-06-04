@@ -1,5 +1,5 @@
 database_name: PostgreSQL
-sqlalchemy_uri: postgresql+psycopg2://admin:XXXXXXXXXX@db:5432/ecdc-haigusseire
+sqlalchemy_uri: postgresql+psycopg2://__POSTGRES_USER__:__POSTGRES_PASSWORD__@__POSTGRES_HOST__:__POSTGRES_PORT__/__POSTGRES_DB__
 cache_timeout: null
 expose_in_sqllab: true
 allow_run_async: false
