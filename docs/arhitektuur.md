@@ -20,30 +20,31 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 ## Andmevoog
 
---mermaid
---flowchart LR
---    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
---    ingest --> staging[(PostgreSQL_staging)]
---    staging --> transform[SQL transformatsioon]
---    transform --> mart[(PostgreSQL mart)]
---    mart --> dashboard[Apache Superset]
---    mart --> quality[Andmekvaliteedi testid]
---    scheduler[Cron scheduler] --> ingest
-
+/* ----------- VANA ARHITEKTUUR --------------
+```mermaid
+flowchart LR
+    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
+    ingest --> staging[(PostgreSQL_staging)]
+    staging --> transform[SQL transformatsioon]
+    transform --> mart[(PostgreSQL mart)]
+    mart --> dashboard[Apache Superset]
+    mart --> quality[Andmekvaliteedi testid]
+    scheduler[Cron scheduler] --> ingest
+```
+----------- VANA ARHITEKTUUR --------------*/
 
 ```mermaid
 flowchart LR
-    source[ECDC CSV failid] --> ingest[Python ingest]
+    source[ECDC CSV Files] --> ingest[Python ingest]
     scheduler[Cron scheduler] --> ingest
 
     ingest --> bronze[(Bronze)]
     bronze --> silver[(Silver)]
+    silver --> gold[(Gold)]
 
     silver --> audit[(Audit)]
 
-    silver --> gold[(Gold view)]
-
-    bronze --> quality[Andmekvaliteedi testid]
+    bronze --> quality[Data Quality Tests]
     silver --> quality
     gold --> quality
 
