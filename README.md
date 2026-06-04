@@ -16,16 +16,6 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 ## Arhitektuur
 
-<!--
-    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
-    ingest --> staging[(PostgreSQL_staging)]
-    staging --> transform[SQL transformatsioon]
-    transform --> mart[(PostgreSQL mart)]
-    mart --> dashboard[Apache Superset]
-    mart --> quality[Andmekvaliteedi testid]
-    scheduler[Cron scheduler] --> ingest
--->
-
 ```mermaid
 flowchart LR
     source[ECDC CSV Files] --> ingest[Python ingest]
