@@ -53,19 +53,22 @@ flowchart LR
 
 ## Andmebaasi kihid
 
-/*
+/* ----------VANA VERSIOON - KUI POLE VAJALIK - EEMALDADA -------------
 | Kiht | Roll |
 |------|------|
 | `PostgreSQL_staging` | Hoiab allika andmeid töötlemata kujul. |
 | `PostgreSQL mart` | Hoiab transformeeritud ja äriloogikat sisaldavaid tabeleid. |
-*/
+----------------------------------------------------------------------- */
 
-| Kiht     | Roll                                                                                       |
-| -------- | ------------------------------------------------------------------------------------------ |
-| `Bronze` | Hoiab ECDC allikast laaditud toorandmeid muutmata kujul.                                   |
-| `Silver` | Sisaldab puhastatud, filtreeritud ja normaliseeritud andmeid, mida kasutatakse analüüsiks. |
-| `Gold`   | Sisaldab äriküsimuste jaoks vajalikke mõõdikuid ja agregeeritud tulemusi.                  |
-| `Audit`  | Säilitab Silver kihist eemaldatud kirjed koos kustutamise aja ja põhjusega.                |
+## Andmebaasi kihid
+
+| Kiht     | Roll                                                                                                                                                                                          |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Bronze` | Hoiab ECDC allikast sisse laaditud toorandmeid muutmata kujul.                                                                                                                                |
+| `Silver` | Hoiab puhastatud ja normaliseeritud andmeid, mis sisaldavad ainult äriküsimuse jaoks vajalikke viiruseid ja mõõdikuid. Selles kihis teostatakse incremental INSERT, UPDATE ja DELETE loogika. |
+| `Gold`   | Sisaldab ärikasutuseks mõeldud vaateid ja agregeeritud mõõdikuid, mida kasutatakse Apache Supersetis visualiseerimiseks.                                                                      |
+| `Audit`  | Säilitab Silver kihist eemaldatud kirjed koos kustutamise aja ja põhjusega, tagades andmete jälgitavuse ja taastatavuse.                                                                      |
+
 
 
 ## Auditeerimine
