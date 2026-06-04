@@ -1,9 +1,6 @@
 # MAMM — Euroopa hingamisteede viiruste hooajaline seire
 
-> **Juhend:** Asenda kõik nurksulgudes vormid oma sisuga enne esitamist. Kustuta see juhendrida.
-
 ## Äriküsimus
-
 
 Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimestel hinnata haigusaktiivsust ning teha teadlikumaid reisimisotsuseid.
 
@@ -27,6 +24,19 @@ flowchart LR
     transform --> mart[(PostgreSQL mart)]
     mart --> dashboard[Apache Superset]
     mart --> quality[Andmekvaliteedi testid]
+    scheduler[Cron scheduler] --> ingest
+```
+```mermaid
+flowchart LR
+    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
+    ingest --> bronze[(Bronze)]
+    bronze --> silver[(Silver)]
+    silver --> gold[(Gold view)]
+    silver --> audit[(Audit schema)]
+    gold --> dashboard[Apache Superset]
+    bronze --> quality[Data Quality]
+    silver --> quality
+    gold --> quality
     scheduler[Cron scheduler] --> ingest
 ```
 
@@ -136,8 +146,11 @@ või Codespaces puhul ava port 8088.
 
 1. **Sissevõtt** — Pythoni ingest2-skript laeb ECDC seireandmed alla ning salvestab need Bronze kihti.
 2. **Laadimine** — Toorandmed salvestatakse PostgreSQL Bronze skeemi
-3. **Transformatsioon** — Silver kihis andmed puhastatakse ja normaliseeritakse.
-                        — Gold kihis arvutatakse nädalapõhised agregeeritud mõõdikud.
+3. **Transformatsioon** - Silver kihis andmed puhastatakse ja normaliseeritakse.
+                        - Muutunud kirjed uuendatakse (UPDATE).
+                        - Uued kirjed lisatakse (INSERT).
+                        - Allikast eemaldatud kirjed logitakse audit-skeemi ning eemaldatakse Silver kihist.
+                        - Gold kihis arvutatakse nädalapõhised agregeeritud mõõdikud.
 4. **Testimine** — 9 andmekvaliteedi testi kontrollivad korrektsust
 5. **Näidikulaud** — Apache Superset visualiseerib haigusaktiivsuse trendid ja positiivsuse määrad.
 
@@ -170,6 +183,23 @@ Testide tulemused: Testide tulemused salvestatakse tabelisse quality.test_result
 **Teadaolev andmekvaliteedi probleem:**
 Mõnes riigis esineb olukordi, kus `detections_total` on suurem kui `tests_total`. See on teadaolev ECDC andmekvaliteedi probleem, mis võib tuleneda aruandlusperioodide erinevusest, dubleerimisest või tagantjärele korrigeerimisest. Andmeid ei filtreerita välja, kuid olukord on dokumenteeritud. Tulevikus lisatakse logimisfunktsioon, mis tuvastab sellised read automaatselt.
 
+## Auditimine
+
+Projekt kasutab audit-skeemi andmete jälgitavuse tagamiseks.
+
+Kui incremental laadimise käigus leitakse Silver kihis kirje, mida allikafailis enam ei eksisteeri, siis:
+
+1. Kirje kopeeritakse tabelisse `audit.deleted_fact_respiratory_surveillance`
+2. Lisatakse kustutamise aeg (`deleted_at`)
+3. Lisatakse kustutamise põhjus (`delete_reason`)
+4. Kirje eemaldatakse Silver kihist
+
+See võimaldab:
+- säilitada ajaloolisi andmeid,
+- uurida andmeallika muudatusi,
+- taastada ekslikult eemaldatud kirjeid,
+- auditeerida ETL protsessi käitumist.
+  
 ## Projekti struktuur
 
 ```
@@ -216,7 +246,7 @@ Mõnes riigis esineb olukordi, kus `detections_total` on suurem kui `tests_total
 
 **Puudused:**
 - automaatseid data quality alert’eid veel ei ole
-- incremental processing puudub
+- audit-skeemi andmeid ei visualiseerita näidikulaual
 - dashboard refresh toimub käsitsi
 
 **Mis edasi:**
