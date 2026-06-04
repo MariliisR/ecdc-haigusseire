@@ -20,18 +20,16 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 ## Andmevoog
 
-/*
-```mermaid
-flowchart LR
-    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
-    ingest --> staging[(PostgreSQL_staging)]
-    staging --> transform[SQL transformatsioon]
-    transform --> mart[(PostgreSQL mart)]
-    mart --> dashboard[Apache Superset]
-    mart --> quality[Andmekvaliteedi testid]
-    scheduler[Cron scheduler] --> ingest
-```
-*/
+--mermaid
+--flowchart LR
+--    source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
+--    ingest --> staging[(PostgreSQL_staging)]
+--    staging --> transform[SQL transformatsioon]
+--    transform --> mart[(PostgreSQL mart)]
+--    mart --> dashboard[Apache Superset]
+--    mart --> quality[Andmekvaliteedi testid]
+--    scheduler[Cron scheduler] --> ingest
+
 
 ```mermaid
 flowchart LR
@@ -69,7 +67,7 @@ flowchart LR
 | `Audit`  | Säilitab Silver kihist eemaldatud kirjed koos kustutamise aja ja põhjusega.                |
 
 
-## Auditimine
+## Auditeerimine
 
 Projekt kasutab audit-skeemi andmete jälgitavuse tagamiseks.
 
