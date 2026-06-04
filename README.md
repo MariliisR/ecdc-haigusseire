@@ -16,10 +16,8 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 ## Arhitektuur
 
-```markdown
 <!--
-VANA ARHITEKTUUR
-
+```mermaid
 flowchart LR
     source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
     ingest --> staging[(PostgreSQL_staging)]
@@ -28,6 +26,7 @@ flowchart LR
     mart --> dashboard[Apache Superset]
     mart --> quality[Andmekvaliteedi testid]
     scheduler[Cron scheduler] --> ingest
+```
 -->
 
 ```mermaid
