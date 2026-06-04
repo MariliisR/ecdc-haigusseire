@@ -16,7 +16,7 @@ Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroop
 
 ## Arhitektuur
 
-```mermaid
+/*mermaid
 flowchart LR
     source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
     ingest --> staging[(PostgreSQL_staging)]
@@ -25,7 +25,8 @@ flowchart LR
     mart --> dashboard[Apache Superset]
     mart --> quality[Andmekvaliteedi testid]
     scheduler[Cron scheduler] --> ingest
-```
+*/
+
 ```mermaid
 flowchart LR
     source[GITHUB EU-CDC/Respiratory_viruses_weekly_data] --> ingest[Python ingest]
@@ -183,7 +184,7 @@ Testide tulemused: Testide tulemused salvestatakse tabelisse quality.test_result
 **Teadaolev andmekvaliteedi probleem:**
 Mõnes riigis esineb olukordi, kus `detections_total` on suurem kui `tests_total`. See on teadaolev ECDC andmekvaliteedi probleem, mis võib tuleneda aruandlusperioodide erinevusest, dubleerimisest või tagantjärele korrigeerimisest. Andmeid ei filtreerita välja, kuid olukord on dokumenteeritud. Tulevikus lisatakse logimisfunktsioon, mis tuvastab sellised read automaatselt.
 
-## Auditimine
+## Auditeerimine
 
 Projekt kasutab audit-skeemi andmete jälgitavuse tagamiseks.
 
