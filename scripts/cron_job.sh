@@ -3,7 +3,7 @@
 echo "$(date): Alustame andmete uuendamist"
 
 # 1. Tõmba uued andmed GitHubist → bronze
-python3 /app/scripts/ingest2.py
+python3 /app/scripts/ingest.py
 
 # 2. Upsert bronze → silver
 psql "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}" \

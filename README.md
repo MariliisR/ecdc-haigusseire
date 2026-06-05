@@ -226,7 +226,6 @@ See võimaldab:
 │   ├── 06_create_schema_audit.sql
 │   ├── 07_create_audit_table.sql   ← auditlogi kustutatud kirjete jaoks
 │   ├── 08_quality_tests_bronze.sql
-│   ├── 09_create_stats_view2.sql   ← lõplik versioon andmete transformatsioonist silver -> gold kihti
 │   ├── 10_quality_tests_silver.sql 
 │   ├── 11_quality_tests_gold.sql
 │   ├── cron_job.sh
