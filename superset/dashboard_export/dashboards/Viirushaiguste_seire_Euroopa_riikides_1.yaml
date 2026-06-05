@@ -7,28 +7,14 @@ certification_details: ''
 published: false
 uuid: d93a0055-5e89-48e7-8899-68ce4e82366d
 position:
-  CHART-explore-2-1:
-    children: []
-    id: CHART-explore-2-1
-    meta:
-      chartId: 2
-      height: 50
-      sliceName: Andmetes esindatud riigid
-      uuid: 6598dedd-f11d-4036-be23-1eaf8c19c2a8
-      width: 4
-    parents:
-    - ROOT_ID
-    - GRID_ID
-    - ROW-eqmABWR46TkmjkZnG7vkH
-    type: CHART
   CHART-explore-3-1:
     children: []
     id: CHART-explore-3-1
     meta:
-      chartId: 3
+      chartId: 4
       height: 50
-      sliceName: "Positiivsete testide arv riigis viimasel kuul viiruset\xFC\xFCpide\
-        \ l\xF5ikes"
+      sliceName: "Positiivsete testide arv riigis viiruset\xFC\xFCpide l\xF5ikes viimasel\
+        \ kuul "
       uuid: 34a048e3-7c00-4c77-ab82-dca247fd3900
       width: 12
     parents:
@@ -40,7 +26,7 @@ position:
     children: []
     id: CHART-explore-4-1
     meta:
-      chartId: 4
+      chartId: 5
       height: 50
       sliceName: "Positiivsete testide m\xE4\xE4r riikide l\xF5ikes viimasel kuul"
       sliceNameOverride: Positiivsete testide % tehtud testidest viimasel kuul
@@ -55,29 +41,44 @@ position:
     children: []
     id: CHART-explore-5-1
     meta:
-      chartId: 5
+      chartId: 6
       height: 50
-      sliceName: "Viirushaiguste sagedus haiguse t\xFC\xFCpi kaupa"
+      sliceName: "Viirushaiguste sagedus haiguse t\xFC\xFCbi kaupa"
       uuid: b49d169f-f61b-43c3-b00f-8213976f4d98
       width: 4
     parents:
     - ROOT_ID
     - GRID_ID
-    - ROW-vUc0sc0uW1LYYrIX5Chi-
+    - ROW-eqmABWR46TkmjkZnG7vkH
     type: CHART
   CHART-explore-6-1:
     children: []
     id: CHART-explore-6-1
     meta:
-      chartId: 6
+      chartId: 3
       height: 50
-      sliceName: "Positiivsete testide % riikide ja viiruset\xFC\xFCpide l\xF5ikes"
+      sliceName: "Positiivsete testide % riikide ja viiruset\xFC\xFCpide l\xF5ikes\
+        \ viimasel kuul"
       uuid: b080f294-c644-40b1-912f-44f53eae82bd
-      width: 8
+      width: 6
     parents:
     - ROOT_ID
     - GRID_ID
     - ROW-vUc0sc0uW1LYYrIX5Chi-
+    type: CHART
+  CHART-explore-7-1:
+    children: []
+    id: CHART-explore-7-1
+    meta:
+      chartId: 7
+      height: 50
+      sliceName: Viirushaiguste positiivsete testide arv riikides viimase aasta jooksul
+      uuid: 89a773ea-a36c-494b-818f-d5c7c93e5342
+      width: 6
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-mn9twBWUH-saikHrqEnOL
     type: CHART
   DASHBOARD_VERSION_KEY: v2
   GRID_ID:
@@ -130,9 +131,9 @@ position:
     type: ROW
   ROW-eqmABWR46TkmjkZnG7vkH:
     children:
-    - CHART-explore-2-1
-    - MARKDOWN-2XOcUnZ6JgzTNrvitTAYB
     - CHART-explore-4-1
+    - MARKDOWN-2XOcUnZ6JgzTNrvitTAYB
+    - CHART-explore-5-1
     id: ROW-eqmABWR46TkmjkZnG7vkH
     meta:
       '0': ROOT_ID
@@ -143,8 +144,8 @@ position:
     type: ROW
   ROW-vUc0sc0uW1LYYrIX5Chi-:
     children:
-    - CHART-explore-5-1
     - CHART-explore-6-1
+    - CHART-explore-7-1
     id: ROW-vUc0sc0uW1LYYrIX5Chi-
     meta:
       '0': ROOT_ID
@@ -155,67 +156,94 @@ position:
     type: ROW
 metadata:
   chart_configuration:
-    '2':
-      id: 2
-      crossFilters:
-        scope: global
-        chartsInScope:
-        - 3
-        - 4
-        - 5
-        - 6
     '3':
       id: 3
       crossFilters:
         scope: global
         chartsInScope:
-        - 2
         - 4
         - 5
         - 6
+        - 7
     '4':
       id: 4
       crossFilters:
         scope: global
         chartsInScope:
-        - 2
         - 3
         - 5
         - 6
+        - 7
     '5':
       id: 5
       crossFilters:
         scope: global
         chartsInScope:
-        - 2
         - 3
         - 4
         - 6
+        - 7
     '6':
       id: 6
       crossFilters:
         scope: global
         chartsInScope:
-        - 2
         - 3
         - 4
         - 5
+        - 7
+    '7':
+      id: 7
+      crossFilters:
+        scope: global
+        chartsInScope:
+        - 3
+        - 4
+        - 5
+        - 6
   global_chart_configuration:
     scope:
       rootPath:
       - ROOT_ID
       excluded: []
     chartsInScope:
-    - 2
     - 3
     - 4
     - 5
     - 6
+    - 7
   map_label_colors:
     RSV: '#1FA8C9'
     Influenza: '#454E7C'
     SARS-CoV-2: '#5AC189'
     SUM(positivity_rate): '#1FA8C9'
+    Spain: '#1FA8C9'
+    Germany: '#454E7C'
+    Italy: '#5AC189'
+    Estonia: '#FF7F44'
+    Latvia: '#666666'
+    Belgium: '#E04355'
+    Ireland: '#FCC700'
+    Lithuania: '#A868B7'
+    France: '#3CCCCB'
+    Denmark: '#A38F79'
+    Greece: '#8FD3E4'
+    Hungary: '#A1A6BD'
+    Cyprus: '#ACE1C4'
+    Poland: '#FEC0A1'
+    Luxembourg: '#B2B2B2'
+    Austria: '#EFA1AA'
+    Malta: '#FDE380'
+    Bulgaria: '#D3B3DA'
+    Slovenia: '#9EE5E5'
+    Netherlands: '#D1C6BC'
+    Norway: '#454E7C'
+    Romania: '#5AC189'
+    Slovakia: '#FF7F44'
+    Sweden: '#666666'
+    Portugal: '#E04355'
+    Iceland: '#FCC700'
+    Czechia: '#A868B7'
   color_scheme: ''
   refresh_frequency: 0
   color_scheme_domain: []

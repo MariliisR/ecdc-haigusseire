@@ -2,7 +2,7 @@
 
 ## Äriküsimus
 
-Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimestel hinnata haigusaktiivsust ning teha teadlikumaid reisimisotsuseid.
+Jälgime kolme hingamisteede haiguse (Influenza, RSV, SARS-CoV-2) levikut Euroopa riikides, et aidata inimestel hinnata haigusaktiivsust.
 
 
 **Mõõdikud:**
@@ -220,7 +220,7 @@ See võimaldab:
 ├── scripts/
 │   ├── 01_create_schema_silver.sql
 │   ├── 02_create_fact_table.sql
-│   ├── 03_initial_load.sql         ← toob puhastamata andmed allikast bronz kihti
+│   ├── 03_initial_load.sql         ← toob puhastamata andmed allikast bronze kihti
 │   ├── 04_incremental_upsert.sql   ← toob puhastatud andmed silver kihti
 │   ├── 05_create_schema_gold.sql
 │   ├── 06_create_schema_audit.sql
